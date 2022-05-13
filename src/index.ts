@@ -1,11 +1,11 @@
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
+dotenv.config();
 import mongoose from 'mongoose';
 import { app } from './app';
-config();
+
 const port = process.env.PORT || 8080;
-const password = '2GVNQKXRX6mHPkzG';
-const database = 'DATN';
-const url = `mongodb+srv://tuanakb1:${password}@cluster0.ibm8g.mongodb.net/${database}?retryWrites=true&w=majority`;
+const url = process.env.MONGODB_URL || 'http://localhost:27017';
+console.log(url);
 
 const gracefulExit = () => {
   mongoose.connection.close(() => {
