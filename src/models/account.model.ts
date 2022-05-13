@@ -1,5 +1,5 @@
 import mongoose, { ObjectId } from 'mongoose';
-import { OrderDoc } from './order';
+import { OrderDoc } from './order.model';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 export interface AccountAttrs {
@@ -14,6 +14,7 @@ export interface AccountAttrs {
 }
 
 export interface AccountDoc extends mongoose.Document {
+  isPasswordMatch(password: string):Promise<boolean>;
   email: string;
   name: string;
   address: string;
@@ -91,7 +92,7 @@ const accountSchema = new mongoose.Schema({
 /**
  * Check if email is taken
  * @param {string} email - The account's email
- * @param {ObjectId} [excludeaccountId] - The id of the account to be excluded
+ * @param {string} [excludeaccountId] - The id of the account to be excluded
  * @returns {Promise<boolean>}
  */
 accountSchema.statics.isEmailTaken = async function (

@@ -9,7 +9,7 @@ const createUser = {
     address: Joi.string().required(),
     phone: Joi.string().required(),
     birth: Joi.string().required(),
-    orderIds: Joi.array().items(Joi.object()),
+    orderIds: Joi.array().items(Joi.string().custom(objectId)),
     role: Joi.string().required().valid('USER', 'ADMIN'),
   }),
 };
@@ -22,13 +22,16 @@ const getUser = {
 
 const updateUser = {
   params: Joi.object().keys({
-    userId: Joi.required().custom(objectId),
+    id: Joi.required().custom(objectId),
   }),
   body: Joi.object()
     .keys({
-      email: Joi.string().email(),
-      password: Joi.string().custom(password),
-      name: Joi.string(),
+    password: Joi.string().custom(password),
+    name: Joi.string(),
+    address: Joi.string(),
+    phone: Joi.string(),
+    birth: Joi.string(),
+    orderIds: Joi.array().items(Joi.object()),
     })
     .min(1),
 };

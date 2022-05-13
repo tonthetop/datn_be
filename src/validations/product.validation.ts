@@ -1,0 +1,46 @@
+import Joi from 'joi';
+import { objectId } from './custom.validation';
+const createProduct = {
+  body: Joi.object().keys({
+    name: Joi.string().trim().required().max(100),
+    brand: Joi.string().trim().required().max(10),
+    productType: Joi.string().trim().required().max(15),
+    price: Joi.number().positive().required(),
+    imgList: Joi.array().items(Joi.object()),
+    desc: Joi.string().allow('', null).max(500),
+    discountIds: Joi.array().items(Joi.string().custom(objectId)),
+    productBySize: Joi.array().items(Joi.object()),
+  }),
+};
+
+const getProduct = {
+  params: Joi.object().keys({
+    id: Joi.string().custom(objectId),
+  }),
+};
+
+const updateProduct = {
+  params: Joi.object().keys({
+    id: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+        name: Joi.string().trim().max(100),
+        brand: Joi.string().trim().max(10),
+        productType: Joi.string().trim().max(15),
+        price: Joi.number().positive(),
+        imgList: Joi.array().items(Joi.object()),
+        description: Joi.string().allow('', null).max(500),
+        discountIds: Joi.array().items(Joi.string().custom(objectId)),
+        productBySize: Joi.array().items(Joi.object()),
+    })
+    .min(1),
+};
+
+const deleteProduct = {
+  params: Joi.object().keys({
+    ProductId: Joi.string().custom(objectId),
+  }),
+};
+
+export { createProduct, getProduct, updateProduct, deleteProduct };

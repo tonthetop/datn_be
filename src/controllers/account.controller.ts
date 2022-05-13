@@ -6,47 +6,40 @@ import * as ErrorCollection from '../errors';
 import { catchAsync } from '../utils';
 
 //
-export const getAllAccounts = catchAsync(
-  async (req: Request, res: Response) => {
-    const accounts = await Account.find({});
-    res.status(httpStatus.CREATED).send(accounts);
-  }
-);
+export const getAll = catchAsync(async (req: Request, res: Response) => {
+  const accounts = await Account.find({});
+  res.status(httpStatus.CREATED).send(accounts);
+});
 export const create = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const account = await accountService.createAccount(req.body);
+    const account = await accountService.create(req.body);
     return res.status(httpStatus.CREATED).send(account);
   } catch (err: any) {
     next(new ErrorCollection.BadRequestError(err.message));
   }
 };
 
-export const getAccountById = catchAsync(
+export const getById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const account = await accountService.getAccountById(req.params.id);
-    if (account) {
-      return res.status(httpStatus.OK).send(account);
-    }
+    const account = await accountService.getById(req.params.id);
+    return res.status(httpStatus.OK).send(account);
   }
 );
 
-export const updateAccountInfo = catchAsync(
+export const updateById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = await accountService.updateAccountById(
-      req.params.id,
-      req.body
-    );
+    const user = await accountService.updateById(req.params.id, req.body);
     res.send(user);
   }
 );
 
-export const deleteAccount = catchAsync(
+export const deleteById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-      await accountService.deleteAccountById(req.params.id);
-      return res.status(httpStatus.NO_CONTENT).send();
+    await accountService.deleteById(req.params.id);
+    return res.status(httpStatus.NO_CONTENT).send();
   }
 );

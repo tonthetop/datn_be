@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { AccountDoc } from './account';
-import { DiscountDoc } from './discount';
-import { ProductDoc } from './product';
+import { AccountDoc } from './account.model';
+import { DiscountDoc } from './discount.model';
+import { ProductDoc } from './product.model';
 
 export interface OrderAttrs {
   accountId: AccountDoc;

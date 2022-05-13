@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { DiscountDoc } from './discount';
+import { DiscountDoc } from './discount.model';
 
 interface ProductBySize {
   size: string;
@@ -12,6 +12,7 @@ export interface ProductAttrs {
   productType: string;
   imgList: string[];
   price: number;
+  description: string;
   discountIds: DiscountDoc[];
   productBySize: ProductBySize[];
 }
@@ -22,6 +23,7 @@ export interface ProductDoc extends mongoose.Document {
   productType: string;
   imgList: string[];
   price: number;
+  description: string;
   discountIds: DiscountDoc[];
   productBySize: ProductBySize[];
   createdAt: Date;
@@ -45,13 +47,17 @@ const productSchema = new mongoose.Schema({
     require: true,
   },
   imgList: [
-    { 
-      type: String, 
-      require: true 
-    }
+    {
+      type: String,
+      require: true,
+    },
   ],
   price: {
     type: Number,
+    require: true,
+  },
+  description: {
+    type: String,
     require: true,
   },
   discountIds: [
