@@ -2,6 +2,11 @@ import mongoose, { ObjectId } from 'mongoose';
 import { OrderDoc } from './order.model';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+interface token {
+  token: string;
+}
 export interface AccountAttrs {
   email: string;
   name: string;
@@ -11,10 +16,12 @@ export interface AccountAttrs {
   role: string;
   password: string;
   orderIds: OrderDoc[];
+  tokens: token[];
 }
 
 export interface AccountDoc extends mongoose.Document {
-  isPasswordMatch(password: string):Promise<boolean>;
+  generateAuthToken(): Promise<string>;
+  isPasswordMatch(password: string): Promise<boolean>;
   email: string;
   name: string;
   address: string;
@@ -23,6 +30,7 @@ export interface AccountDoc extends mongoose.Document {
   role: string;
   password: string;
   orderIds: OrderDoc[];
+  tokens: token[];
   createdAt: Date;
 }
 
@@ -86,8 +94,32 @@ const accountSchema = new mongoose.Schema({
       ref: 'orders',
     },
   ],
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
+
+/**
+ * Check if email is taken
+ * @returns {Promise<string>}
+ */
+accountSchema.methods.generateAuthToken = async function (): Promise<string> {
+  // Generate an auth token for the account
+  const account = this;
+  const token = jwt.sign(
+    { _id: account._id, email: account.email, role: account.role },
+    process.env.JWT_SECRET || 'tuandeptrai123'
+  );
+  account.tokens = account.tokens.concat({ token });
+  await account.save();
+  return token;
+};
 
 /**
  * Check if email is taken

@@ -1,15 +1,47 @@
 import { catchAsync } from '../utils/catchAsync';
 import { authService } from '../services';
 import jwt from 'jsonwebtoken';
+import httpStatus from 'http-status';
 
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await authService.loginUserWithEmailAndPassword(email, password);
-  const jwtToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET || 'tuandeptrai123'
+  const account = await authService.loginAccountWithEmailAndPassword(
+    email,
+    password
   );
-  return res.json({ info: user, token: jwtToken });
+  const token = await account.generateAuthToken();
+  res.send({ account, token });
+
+  // const jwtToken = jwt.sign(
+  //   { id: account.id, email: account.email, role: account.role },
+  //   process.env.JWT_SECRET || 'tuandeptrai123'
+  // );
+  // return res.json({ info: account, token: jwtToken });
 });
 
-export { login };
+const logout = catchAsync(async (req, res, next) => {
+  // Log account out of the application
+  try {
+    req.payload.account.tokens = req.payload.account.tokens.filter(
+      (token: any) => {
+        return token.token != req.payload.token;
+      }
+    );
+    await req.payload.account.save();
+    res.status(httpStatus.NO_CONTENT).send();
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+const logoutAll = catchAsync(async (req, res, next) => {
+  try {
+    req.payload.account.tokens.splice(0, req.payload.account.tokens.length);
+    await req.payload.account.save();
+    res.status(httpStatus.NO_CONTENT).send();
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+export { login, logout, logoutAll };

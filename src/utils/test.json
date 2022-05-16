@@ -1,0 +1,17 @@
+{
+    "email": "tuanak69111@s22l.comsss",
+    "name": "tuandeptrai",
+    "address": "sontra, da nang",
+    "phone": "0905803676",
+    "birth": {
+        "$date": {
+            "$numberLong": "1652227200000"
+        }
+    },
+    "role": "USER",
+    "password": "$2b$08$nt3Ej/CBqeBwgyelzPGwLOhhTf3tNyxCK0kAN7XWNj..DFv7S45Im",
+    "orderIds": [],
+    "tokens": [{
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjdjZWQ1M2ZjN2RhNTZjOTgxYjcyZDgiLCJlbWFpbCI6InR1YW5hazY5MTExQHMyMmwuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE2NTI2NzA0MzV9.UhwjkTLqzXOZjzuuIsYtesu6_P_JDOK6TawqJSSg_YE"
+    }]
+}

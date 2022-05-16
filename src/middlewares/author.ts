@@ -5,10 +5,10 @@ const MEMBER_ROLE = "USER";
 
 async function checkMemberRole(req: Request, res: Response, next: NextFunction) {
 
-  console.log('check', (req as any).payload.role === MEMBER_ROLE);
+  console.log('checkMemberRole', (req as any).payload.role === MEMBER_ROLE);
   if (
-    (req as any).payload.role === ADMIN_ROLE ||
-    (req as any).payload.role === MEMBER_ROLE
+    (req as any).payload.account.role === ADMIN_ROLE ||
+    (req as any).payload.account.role === MEMBER_ROLE
   ) {
       
     next();
@@ -18,7 +18,7 @@ async function checkMemberRole(req: Request, res: Response, next: NextFunction) 
 }
 
 async function checkAdminRole(req: Request, res: Response, next: NextFunction) {
-  if ((req as any).payload.role === ADMIN_ROLE) {
+  if ((req as any).payload.account.role === ADMIN_ROLE) {
     next();
   } else {
     next (new ErrorCollection.NotAuthorizedError())

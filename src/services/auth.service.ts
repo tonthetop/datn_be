@@ -8,7 +8,7 @@ import * as ErrorCollection from '../errors'
  * @param {string} password
  * @returns {Promise<AccountDoc>}
  */
-const loginUserWithEmailAndPassword = async (email:string, password:string): Promise<AccountDoc> => {
+const loginAccountWithEmailAndPassword = async (email:string, password:string): Promise<AccountDoc> => {
   const user = await accountService.getByEmail(email);
   if (!user || !(await user.isPasswordMatch(password))) {
     throw new ErrorCollection.NotAuthorizedError();
@@ -18,6 +18,6 @@ const loginUserWithEmailAndPassword = async (email:string, password:string): Pro
 
 
 export  {
-  loginUserWithEmailAndPassword,
+  loginAccountWithEmailAndPassword,
 
 };
