@@ -12,14 +12,14 @@ const convertBase64 = (s: string) => {
 //
 export const getAll = catchAsync(async (req: Request, res: Response) => {
   const filter = req.query.filter as string;
-  const page = Number(req.query.page);
-  const limit = Number(req.query.limit);
+  const page = Number(req.query.page)||1;
+  const limit = Number(req.query.limit)||12;
   const sortBy = req.query.sortBy;
+  const type=(req.query.type?(req.query.type as string).toUpperCase():'');
   const skip = (page - 1) * limit;
 
   console.log(req.query)
   const { size = '', priceRange = undefined, brand = '' } = filter ? convertBase64(filter) : {};
-  console.log({ size, priceRange, brand });
 
   let sort;
   switch (sortBy) {
@@ -39,7 +39,7 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       sort = { createdAt: -1 };
       break;
   }
-  const discounts = await Product.find({
+  const products = await Product.find({
     productBySize: {
       $elemMatch: {
         size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
@@ -49,6 +49,7 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       ? { $gt: priceRange?.min, $lt: priceRange?.max }
       : { $gt: 0, $lt: Infinity },
     brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
+    productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
   })
     .sort(sort)
     .skip(skip)
@@ -65,7 +66,7 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       : { $gt: 0, $lt: Infinity },
     brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
   });
-  res.status(httpStatus.OK).send(discounts);
+  res.status(httpStatus.OK).send(products);
 });
 export const create = async (
   req: Request,
