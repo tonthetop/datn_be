@@ -12,14 +12,18 @@ const convertBase64 = (s: string) => {
 //
 export const getAll = catchAsync(async (req: Request, res: Response) => {
   const filter = req.query.filter as string;
-  const page = Number(req.query.page)||1;
-  const limit = Number(req.query.limit)||12;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 12;
   const sortBy = req.query.sortBy;
-  const type=(req.query.type?(req.query.type as string).toUpperCase():'');
+  const type = req.query.type ? (req.query.type as string).toUpperCase() : '';
   const skip = (page - 1) * limit;
-
-  console.log(req.query)
-  const { size = '', priceRange = undefined, brand = '' } = filter ? convertBase64(filter) : {};
+  console.log(skip);
+  console.log(req.query);
+  const {
+    size = '',
+    priceRange = undefined,
+    brand = '',
+  } = filter ? convertBase64(filter) : {};
 
   let sort;
   switch (sortBy) {
@@ -36,7 +40,7 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       sort = { createdAt: -1 };
       break;
     default:
-      sort = { createdAt: -1 };
+      sort = {};
       break;
   }
   const products = await Product.find({
@@ -54,7 +58,6 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
     .sort(sort)
     .skip(skip)
     .limit(limit);
-
   const totalRecords = await Product.count({
     productBySize: {
       $elemMatch: {
@@ -65,8 +68,10 @@ export const getAll = catchAsync(async (req: Request, res: Response) => {
       ? { $gt: priceRange?.min, $lt: priceRange?.max }
       : { $gt: 0, $lt: Infinity },
     brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
+    productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
   });
-  res.status(httpStatus.OK).send(products);
+
+  res.status(httpStatus.OK).send({ totalRecords, products });
 });
 export const create = async (
   req: Request,
