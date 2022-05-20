@@ -89,32 +89,19 @@ const getById = async (id: string) => {
   return item;
 };
 
-const updateById = async (productId: string, updateBody: any, files: any) => {
+const updateById = async (productId: string, updateBody: any, files: any="") => {
   const product = await getById(productId);
 
   // console.log('FILE: ', files);
   console.log('Body from Client: ', updateBody);
-  // console.log('Slide in database: ', product.slideImages);
-
   if (files) {
     if (files.images) {
       const filePath = files.images[0].path.slice(7).replace('\\', '/');
       updateBody.images = filePath;
     }
-
-    //Filter index change image
-
-    //Slide Image from body is 1 element
-
-    //Replace slide index change
   }
-  // console.log('PRODUCT SLIDE', product.slideImages);
-
   Object.assign(product, updateBody);
-  product.markModified('slideImages');
   await product.save();
-  console.log('UPDATE PRODUCT', product);
-
   return product;
 };
 

@@ -3,7 +3,7 @@ import { objectId } from './custom.validation';
 
 const createDiscount = {
   body: Joi.object().keys({
-    value: Joi.string().required(),
+    value:  Joi.number().positive().required(),
     timeBegin: Joi.date().required(),
     timeEnd: Joi.date().required(),
   }),
@@ -21,7 +21,7 @@ const updateDiscount = {
   }),
   body: Joi.object()
     .keys({
-      value: Joi.string().required(),
+      value:  Joi.number().positive().required(),
       timeBegin: Joi.date().required(),
       timeEnd: Joi.date().required(),
     })

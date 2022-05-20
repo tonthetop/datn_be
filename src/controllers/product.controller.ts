@@ -10,77 +10,80 @@ const convertBase64 = (s: string) => {
 };
 
 //
-export const getAll = catchAsync(async (req: Request, res: Response) => {
-  const filter = req.query.filter as string;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 12;
-  const sortBy = req.query.sortBy;
-  const type = req.query.type ? (req.query.type as string).toUpperCase() : '';
-  const skip = (page - 1) * limit;
-  console.log(skip);
-  console.log(req.query);
-  const {
-    size = '',
-    priceRange = undefined,
-    brand = '',
-  } = filter ? convertBase64(filter) : {};
+export const getProductsByQueries = catchAsync(
+  async (req: Request, res: Response) => {
+    const filter = req.query.filter as string;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 12;
+    const sortBy = req.query.sortBy;
+    const type = req.query.type ? (req.query.type as string).toUpperCase() : '';
+    const skip = (page - 1) * limit;
+    console.log('queries: ', req.query);
+    const {
+      size = '',
+      priceRange = undefined,
+      brand = '',
+    } = filter ? convertBase64(filter) : {};
 
-  let sort;
-  switch (sortBy) {
-    case 'min_price':
-      sort = { price: 1 };
-      break;
-    case 'max_price':
-      sort = { price: -1 };
-      break;
-    case 'min_time':
-      sort = { createdAt: 1 };
-      break;
-    case 'max_time':
-      sort = { createdAt: -1 };
-      break;
-    default:
-      sort = {};
-      break;
+    let sort;
+    switch (sortBy) {
+      case 'min_price':
+        sort = { price: 1 };
+        break;
+      case 'max_price':
+        sort = { price: -1 };
+        break;
+      case 'min_time':
+        sort = { createdAt: 1 };
+        break;
+      case 'max_time':
+        sort = { createdAt: -1 };
+        break;
+      default:
+        sort = {};
+        break;
+    }
+    const products = await Product.find({
+      productBySize: {
+        $elemMatch: {
+          size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
+        },
+      },
+      price: priceRange
+        ? { $gt: priceRange?.min, $lt: priceRange?.max }
+        : { $gt: 0, $lt: Infinity },
+      brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
+      productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
+    })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+    console.log('products: ', products);
+
+    const totalRecords = await Product.count({
+      productBySize: {
+        $elemMatch: {
+          size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
+        },
+      },
+      price: priceRange
+        ? { $gt: priceRange?.min, $lt: priceRange?.max }
+        : { $gt: 0, $lt: Infinity },
+      brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
+      productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
+    });
+
+    res.status(httpStatus.OK).send({ totalRecords, products });
   }
-  const products = await Product.find({
-    productBySize: {
-      $elemMatch: {
-        size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
-      },
-    },
-    price: priceRange
-      ? { $gt: priceRange?.min, $lt: priceRange?.max }
-      : { $gt: 0, $lt: Infinity },
-    brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
-    productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
-  })
-    .sort(sort)
-    .skip(skip)
-    .limit(limit);
-  const totalRecords = await Product.count({
-    productBySize: {
-      $elemMatch: {
-        size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
-      },
-    },
-    price: priceRange
-      ? { $gt: priceRange?.min, $lt: priceRange?.max }
-      : { $gt: 0, $lt: Infinity },
-    brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
-    productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
-  });
-
-  res.status(httpStatus.OK).send({ totalRecords, products });
-});
+);
 export const create = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const discount = await productService.create(req.body, 'default');
-    return res.status(httpStatus.CREATED).send(discount);
+    const product = await productService.create(req.body, 'default');
+    return res.status(httpStatus.CREATED).send(product);
   } catch (err: any) {
     next(new ErrorCollection.BadRequestError(err.message));
   }
@@ -88,19 +91,19 @@ export const create = async (
 
 export const getById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const discount = await productService.getById(req.params.id);
-    return res.status(httpStatus.OK).send(discount);
+    const product = await productService.getById(req.params.id);
+    return res.status(httpStatus.OK).send(product);
   }
 );
 
 export const updateById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const discount = await productService.updateById(
+    const product = await productService.updateById(
       req.params.id,
       req.body,
-      ''
+      (req as any).files
     );
-    res.send(discount);
+    res.send(product);
   }
 );
 
