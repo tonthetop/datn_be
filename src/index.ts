@@ -20,7 +20,7 @@ const start = async () => {
   await mongoose.connect(url);
   console.log('MongoDB connected');
 
-  app.listen(port, () => {
+  app.listen(port || 8080, () => {
     console.log(`Listen on port ${port}`);
   });
   process.on('SIGINT', gracefulExit).on('SIGTERM', gracefulExit);
