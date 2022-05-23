@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon src/index.ts",
+        "start": "ts-node-dev src/index.ts",
         "lint": "eslint ./src -- --fix"
     },
     "keywords": [],

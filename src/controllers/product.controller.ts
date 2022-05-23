@@ -9,6 +9,23 @@ const convertBase64 = (s: string) => {
   return JSON.parse(Buffer.from(s, 'base64').toString());
 };
 
+const checkDiscountAvailable = (products: any[]) => {
+  if (products.length > 0) {
+    products = products.map((product) => {
+      const lastestDis = product.discountIds.pop();
+      if (lastestDis) {
+        if (
+          lastestDis.timeBegin < new Date() &&
+          lastestDis.timeEnd > new Date()
+        )
+          product.discountIds = [lastestDis];
+        else product.discountIds = [];
+      }
+      return product;
+    });
+  }
+  return products;
+};
 //
 export const getProductsByQueries = catchAsync(
   async (req: Request, res: Response) => {
@@ -43,7 +60,7 @@ export const getProductsByQueries = catchAsync(
         sort = {};
         break;
     }
-    const products = await Product.find({
+    let products = await Product.find({
       productBySize: {
         $elemMatch: {
           size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
@@ -55,11 +72,11 @@ export const getProductsByQueries = catchAsync(
       brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
       productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
     })
+      .populate('discountIds')
       .sort(sort)
       .skip(skip)
       .limit(limit);
-    console.log('products: ', products);
-
+    products = checkDiscountAvailable(products);
     const totalRecords = await Product.count({
       productBySize: {
         $elemMatch: {
@@ -92,6 +109,7 @@ export const create = async (
 export const getById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const product = await productService.getById(req.params.id);
+
     return res.status(httpStatus.OK).send(product);
   }
 );

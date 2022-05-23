@@ -17,74 +17,9 @@ const create = async (body: ProductDoc, files: any): Promise<ProductDoc> => {
   return product;
 };
 
-export const setFilterRegex = (searchQuery: any) => {
-  const regex = new RegExp(searchQuery.name, 'i');
-
-  switch (Object.keys(searchQuery).length) {
-    case 1: {
-      if (searchQuery.name) {
-        return { $or: [{ productCode: regex }, { name: regex }] };
-      }
-      return searchQuery;
-    }
-    case 2: {
-      if (searchQuery.name) {
-        return {
-          $and: [
-            { $or: [{ productCode: regex }, { name: regex }] },
-            { productTypeId: searchQuery.productTypeId },
-          ],
-        };
-      }
-    }
-    case 3: {
-      return {
-        $and: [
-          { $or: [{ productCode: regex }, { name: regex }] },
-          { productTypeId: searchQuery.productTypeId },
-          { productCategoryId: searchQuery.productCategoryId },
-        ],
-      };
-    }
-    default:
-      return null;
-  }
-};
-
-const getProducts = async (reqQuery: any) => {
-  const searchQuery: any = {};
-  if (reqQuery.name) {
-    searchQuery.name = reqQuery.name;
-  }
-  if (reqQuery.typeId) {
-    searchQuery.productTypeId = reqQuery.typeId;
-  }
-  if (reqQuery.categoryId) {
-    searchQuery.productCategoryId = reqQuery.categoryId;
-  }
-
-  const filterRegex = setFilterRegex(searchQuery);
-
-  const perPage = parseInt(reqQuery.limit) || 8;
-  let page = parseInt(reqQuery.page) || 1;
-  const productList = await Product.find(filterRegex)
-    .skip(perPage * page - perPage)
-    .limit(perPage);
-
-  const totalProduct = await Product.countDocuments(filterRegex);
-  const totalPage = Math.ceil(totalProduct / perPage);
-
-  return {
-    productList,
-    currentPage: page,
-    limit: perPage,
-    totalProduct,
-    totalPage: totalPage,
-  };
-};
 
 const getById = async (id: string) => {
-  const item = await Product.findById(id);
+  const item = await Product.findById(id).populate('discountIds');
   if (!item) throw new createError.NotFound();
   return item;
 };
@@ -111,4 +46,4 @@ const deleteById = async (productId: string): Promise<ProductDoc | null> => {
   return product;
 };
 
-export { create, getProducts, getById, updateById, deleteById };
+export { create, getById, updateById, deleteById };
