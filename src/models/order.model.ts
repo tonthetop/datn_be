@@ -8,6 +8,8 @@ export interface OrderAttrs {
   orderType: string;
   deliveryTime: Date;
   deliveryAddress: string;
+  receivePhone: string;
+  description: string;
   status: string;
   productList: {
     productId: ProductDoc;
@@ -22,6 +24,8 @@ export interface OrderDoc extends mongoose.Document {
   orderType: string;
   deliveryTime: Date;
   deliveryAddress: string;
+  receivePhone: string;
+  description: string;
   status: string;
   productList: {
     productId: ProductDoc;
@@ -50,6 +54,14 @@ const orderSchema = new mongoose.Schema({
     require: true,
   },
   deliveryAddress: {
+    type: String,
+    require: true,
+  },
+  receivePhone: {
+    type: String,
+    require: true,
+  },
+  description: {
     type: String,
     require: true,
   },

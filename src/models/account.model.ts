@@ -35,7 +35,10 @@ export interface AccountDoc extends mongoose.Document {
 }
 
 export interface AccountModel extends mongoose.Model<AccountDoc> {
-  isEmailTaken(email: string, excludeaccountId?: string): Promise<boolean>;
+  isEmailAndPhoneTaken(
+    email: string,
+    phone: string
+  ): Promise<boolean>;
   build(attrs: AccountAttrs): AccountDoc;
 }
 
@@ -127,11 +130,13 @@ accountSchema.methods.generateAuthToken = async function (): Promise<string> {
  * @param {string} [excludeaccountId] - The id of the account to be excluded
  * @returns {Promise<boolean>}
  */
-accountSchema.statics.isEmailTaken = async function (
+accountSchema.statics.isEmailAndPhoneTaken = async function (
   email: string,
-  excludeaccountId?: string
+  phone: string,
 ): Promise<boolean> {
-  const account = await this.findOne({ email, _id: { $ne: excludeaccountId } });
+  const account = await this.findOne({
+    $or: [{ email: email }, { phone: phone }],
+  });
   return !!account;
 };
 

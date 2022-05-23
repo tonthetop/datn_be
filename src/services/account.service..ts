@@ -1,6 +1,6 @@
 import createError from 'http-errors';
 import httpStatus from 'http-status';
-import { Account,AccountDoc  } from '../models';
+import { Account, AccountDoc } from '../models';
 
 /**
  * Create item
@@ -9,13 +9,13 @@ import { Account,AccountDoc  } from '../models';
  */
 export const create = async (body: any): Promise<AccountDoc> => {
   try {
-    if (!(await Account.isEmailTaken(body.email))) {
+    if (!(await Account.isEmailAndPhoneTaken(body.email, body.phone))) {
       const item = await Account.create(body);
       return item;
     }
     throw new createError.BadRequest('item already exists');
   } catch (err: any) {
-    throw new createError.BadRequest(err.message)
+    throw new createError.BadRequest(err.message);
   }
 };
 
@@ -37,8 +37,13 @@ export const getById = async (id: string): Promise<AccountDoc> => {
  * @param {string} email
  * @returns {Promise<AccountDoc|null>}
  */
-export async function getByEmail(email: string): Promise<AccountDoc> {
-  const item = await Account.findOne({ email });
+export async function getByEmailOrPhone(
+  email: string,
+  phone: string
+): Promise<AccountDoc> {
+  const item = await Account.findOne({
+    $or: [{ email:email !== '' ? email : { $regex: new RegExp(brand, 'i') } }, { phone:   }],
+  });
   if (!item) throw new createError.NotFound();
   return item;
 }
@@ -65,9 +70,7 @@ export async function updateById(
  * @param {string} id
  * @returns {Promise<AccountDoc|null>}
  */
-export const deleteById = async (
-  id: string
-): Promise<AccountDoc | null> => {
+export const deleteById = async (id: string): Promise<AccountDoc | null> => {
   const item = await getById(id);
   await item.remove();
   return item;

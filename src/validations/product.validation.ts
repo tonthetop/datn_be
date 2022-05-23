@@ -3,13 +3,26 @@ import { objectId } from './custom.validation';
 const createProduct = {
   body: Joi.object().keys({
     name: Joi.string().trim().required().max(100),
-    brand: Joi.string().trim().required().max(10),
-    productType: Joi.string().trim().required().max(15),
+    brand: Joi.string()
+      .trim()
+      .required()
+      .max(10)
+      .valid('ADIDAS', 'NIKE', 'JORDAN'),
+    productType: Joi.string()
+      .trim()
+      .required()
+      .max(15)
+      .valid('GIAY', 'DEP', 'PHUKIEN'),
     price: Joi.number().positive().required(),
-    imgList: Joi.array().items(Joi.object()),
-    desc: Joi.string().allow('', null).max(500),
+    imgList: Joi.array().items(Joi.string()),
+    description: Joi.string().allow('', null).max(500),
     discountIds: Joi.array().items(Joi.string().custom(objectId)),
-    productBySize: Joi.array().items(Joi.object()),
+    productBySize: Joi.array().items(
+      Joi.object({
+        size: Joi.string().required(),
+        amount: Joi.number().positive().required(),
+      })
+    ),
   }),
 };
 
@@ -25,21 +38,34 @@ const updateProduct = {
   }),
   body: Joi.object()
     .keys({
-        name: Joi.string().trim().max(100),
-        brand: Joi.string().trim().max(10),
-        productType: Joi.string().trim().max(15),
-        price: Joi.number().positive(),
-        imgList: Joi.array().items(Joi.object()),
-        description: Joi.string().allow('', null).max(500),
-        discountIds: Joi.array().items(Joi.string().custom(objectId)),
-        productBySize: Joi.array().items(Joi.object()),
+      name: Joi.string().trim().required().max(100),
+      brand: Joi.string()
+        .trim()
+        .required()
+        .max(10)
+        .valid('ADIDAS', 'NIKE', 'JORDAN'),
+      productType: Joi.string()
+        .trim()
+        .required()
+        .max(15)
+        .valid('GIAY', 'DEP', 'PHUKIEN'),
+      price: Joi.number().positive().required(),
+      imgList: Joi.array().items(Joi.string()),
+      description: Joi.string().allow('', null).max(500),
+      discountIds: Joi.array().items(Joi.string().custom(objectId)),
+      productBySize: Joi.array().items(
+        Joi.object({
+          size: Joi.string().required(),
+          amount: Joi.number().positive().required(),
+        })
+      ),
     })
     .min(1),
 };
 
 const deleteProduct = {
   params: Joi.object().keys({
-    ProductId: Joi.string().custom(objectId),
+    id: Joi.string().custom(objectId),
   }),
 };
 

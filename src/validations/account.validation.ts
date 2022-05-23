@@ -8,7 +8,7 @@ const createUser = {
     name: Joi.string().required(),
     address: Joi.string().required(),
     phone: Joi.string().required(),
-    birth: Joi.string().required(),
+    birth: Joi.date().required(),
     orderIds: Joi.array().items(Joi.string().custom(objectId)),
     role: Joi.string().required().valid('USER', 'ADMIN'),
   }),
@@ -38,7 +38,7 @@ const updateUser = {
 
 const deleteUser = {
   params: Joi.object().keys({
-    userId: Joi.string().custom(objectId),
+    id: Joi.string().custom(objectId),
   }),
 };
 

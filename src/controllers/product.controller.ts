@@ -9,25 +9,25 @@ const convertBase64 = (s: string) => {
   return JSON.parse(Buffer.from(s, 'base64').toString());
 };
 
-const checkDiscountAvailable = (products: any[]) => {
-  if (products.length > 0) {
-    products = products.map((product) => {
-      const lastestDis = product.discountIds.pop();
+const checkDiscountAvailable = (items: any[]) => {
+  if (items.length > 0) {
+    items = items.map((item) => {
+      const lastestDis = item.discountIds.pop();
       if (lastestDis) {
         if (
           lastestDis.timeBegin < new Date() &&
           lastestDis.timeEnd > new Date()
         )
-          product.discountIds = [lastestDis];
-        else product.discountIds = [];
+          item.discountIds = [lastestDis];
+        else item.discountIds = [];
       }
-      return product;
+      return item;
     });
   }
-  return products;
+  return items;
 };
 //
-export const getProductsByQueries = catchAsync(
+export const getItemsByQueries = catchAsync(
   async (req: Request, res: Response) => {
     const filter = req.query.filter as string;
     const page = Number(req.query.page) || 1;
@@ -60,7 +60,7 @@ export const getProductsByQueries = catchAsync(
         sort = {};
         break;
     }
-    let products = await Product.find({
+    let items = await Product.find({
       productBySize: {
         $elemMatch: {
           size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
@@ -76,7 +76,7 @@ export const getProductsByQueries = catchAsync(
       .sort(sort)
       .skip(skip)
       .limit(limit);
-    products = checkDiscountAvailable(products);
+    items = checkDiscountAvailable(items);
     const totalRecords = await Product.count({
       productBySize: {
         $elemMatch: {
@@ -90,38 +90,46 @@ export const getProductsByQueries = catchAsync(
       productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
     });
 
-    res.status(httpStatus.OK).send({ totalRecords, products });
+    res.status(httpStatus.OK).send({ totalRecords, items });
   }
 );
-export const create = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const product = await productService.create(req.body, 'default');
-    return res.status(httpStatus.CREATED).send(product);
-  } catch (err: any) {
-    next(new ErrorCollection.BadRequestError(err.message));
+export const create = catchAsync(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const item = await productService.create(req.body, 'default');
+      return res.status(httpStatus.CREATED).send(item);
+    } catch (err: any) {
+      next(new ErrorCollection.BadRequestError(err.message));
+    }
   }
-};
+)
 
 export const getById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const product = await productService.getById(req.params.id);
-
-    return res.status(httpStatus.OK).send(product);
+    const item = await productService.getById(req.params.id);
+    // get populate discounts
+    const lastestDis = item.discountIds.pop();
+    if (lastestDis) {
+      if (lastestDis.timeBegin < new Date() && lastestDis.timeEnd > new Date())
+        item.discountIds = [lastestDis];
+      else item.discountIds = [];
+    }
+    return res.status(httpStatus.OK).send(item);
   }
 );
 
 export const updateById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const product = await productService.updateById(
+    const item = await productService.updateById(
       req.params.id,
       req.body,
       (req as any).files
     );
-    res.send(product);
+    res.send(item);
   }
 );
 

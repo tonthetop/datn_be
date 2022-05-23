@@ -9,11 +9,15 @@ import httpStatus from 'http-status';
  * @returns {Promise<ProductDoc>}
  */
 const create = async (body: ProductDoc, files: any): Promise<ProductDoc> => {
-  console.log('CREATE FILE:', files);
-  const listFilePaths = files.map((item: any) =>
-    item.link.path.slice(7).replace('\\', '/')
-  );
-  const product = await Product.create({ ...body, imgList: listFilePaths });
+  // console.log('CREATE FILE:', files);
+  // const listFilePaths = files.map((item: any) =>
+  //   item.link.path.slice(7).replace('\\', '/')
+  // );
+  //const product = await Product.create({ ...body, imgList: listFilePaths });
+  const productExitsName=await Product.findOne({name:body.name})
+  if (productExitsName) throw new createError.BadRequest("Product Name already exists")
+  const product = await Product.create({ ...body});
+
   return product;
 };
 

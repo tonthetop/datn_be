@@ -7,7 +7,7 @@ const router = express.Router();
 router.route('/').get(discountRoutes.getAll);
 router
   .route('/')
-  .post(authenticationToken,authorization.checkAdminRole,validate(discountValidation.createDiscount), discountRoutes.create);
+  .post(validate(discountValidation.createDiscount), discountRoutes.create);
 router
   .route('/:id')
   .get(authenticationToken,authorization.checkAdminRole,validate(discountValidation.getDiscount), discountRoutes.getById);
