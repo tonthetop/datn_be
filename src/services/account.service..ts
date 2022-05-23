@@ -33,8 +33,9 @@ export const getById = async (id: string): Promise<AccountDoc> => {
 };
 
 /**
- * Get item by email
+ * Get item by email or phone
  * @param {string} email
+ * @param {string} phone
  * @returns {Promise<AccountDoc|null>}
  */
 export async function getByEmailOrPhone(
@@ -42,7 +43,8 @@ export async function getByEmailOrPhone(
   phone: string
 ): Promise<AccountDoc> {
   const item = await Account.findOne({
-    $or: [{ email:email !== '' ? email : { $regex: new RegExp(brand, 'i') } }, { phone:   }],
+    email: email ? email : { $regex: new RegExp(email, 'i') },
+    phone: phone ? phone : { $regex: new RegExp(phone, 'i') },
   });
   if (!item) throw new createError.NotFound();
   return item;
@@ -59,7 +61,12 @@ export async function updateById(
   body: Object
 ): Promise<AccountDoc> {
   const item = await getById(id);
-  console.log(item);
+  if ((body as any).phone) {
+    const itemPhone = await Account.findOne({phone: (body as any).phone });
+    if (itemPhone) {
+      if (item._id.toString() !==itemPhone._id.toString() ) throw new createError.BadRequest('Phone number already exits');
+    }
+  }
   Object.assign(item, body);
   await item.save();
   return item;

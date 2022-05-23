@@ -26,6 +26,12 @@ const getOrder = {
     id: Joi.string().custom(objectId),
   }),
 };
+const getOrderByEmailOrPhone = {
+  body: Joi.object().keys({
+    email:Joi.string().email(),
+    phone: Joi.string(),
+  }).min(1)
+};
 
 const updateOrder = {
   params: Joi.object().keys({
@@ -49,4 +55,4 @@ const deleteOrder = {
   }),
 };
 
-export { createOrder, getOrder, updateOrder, deleteOrder };
+export { createOrder, getOrder,getOrderByEmailOrPhone, updateOrder, deleteOrder };

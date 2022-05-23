@@ -9,7 +9,7 @@ import * as ErrorCollection from '../errors'
  * @returns {Promise<AccountDoc>}
  */
 const loginAccountWithEmailAndPassword = async (email:string, password:string): Promise<AccountDoc> => {
-  const user = await accountService.getByEmail(email);
+  const user = await accountService.getByEmailOrPhone(email,"");
   if (!user || !(await user.isPasswordMatch(password))) {
     throw new ErrorCollection.NotAuthorizedError();
   }

@@ -25,10 +25,12 @@ export const create = catchAsync(
 
 export const getByEmailOrPhone = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {email='',phone=''}=req.body
-    const account = accountService.getByEmailOrPhone(email,phone)
-    const item = await orderService.getById(req.params.id);
-    return res.status(httpStatus.OK).send(item);
+    console.log(req.body)
+    const {email,phone}=req.body
+    const account = await accountService.getByEmailOrPhone(email,phone);
+    const orders= await Order.find({accountId:account._id})
+    // luc nay chi co [] or [orders]
+    res.send(orders)
   }
 );
 

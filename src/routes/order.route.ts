@@ -6,6 +6,7 @@ import {validate} from "../middlewares"
 
 const router = express.Router();
 router.route("/").get(orderRoutes.getItemsByQueries);
+router.route("/get-by-email-or-phone").post(validate(orderValidation.getOrderByEmailOrPhone),orderRoutes.getByEmailOrPhone);
 router.route("/").post(validate(orderValidation.createOrder),orderRoutes.create);
 router.route("/:id").get(validate(orderValidation.getOrder),orderRoutes.getById)
 router.route("/:id").delete(validate(orderValidation.deleteOrder),orderRoutes.deleteById)
