@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { DiscountDoc } from './discount.model';
+import mongooseDelete from 'mongoose-delete';
 
 interface ProductBySize {
   size: string;
@@ -27,6 +28,8 @@ export interface ProductDoc extends mongoose.Document {
   discountIds: DiscountDoc[];
   productBySize: ProductBySize[];
   createdAt: Date;
+  updatedAt: Date;
+
 }
 
 export interface ProductModel extends mongoose.Model<ProductDoc> {
@@ -79,12 +82,18 @@ const productSchema = new mongoose.Schema({
     },
   ],
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+
 });
 
 productSchema.statics.build = (attrs: ProductAttrs) => {
   return new Product(attrs);
 };
-
+//Add plugin
+productSchema.plugin(mongooseDelete, {
+  deleteAt: true,
+  overrideMethods: 'all',
+});
 export const Product = mongoose.model<ProductDoc, ProductModel>(
   'products',
   productSchema

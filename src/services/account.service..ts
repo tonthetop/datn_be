@@ -79,6 +79,6 @@ export async function updateById(
  */
 export const deleteById = async (id: string): Promise<AccountDoc | null> => {
   const item = await getById(id);
-  await item.remove();
+  await (Account as any).delete({ _id: item._id })
   return item;
 };

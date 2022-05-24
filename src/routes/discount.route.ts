@@ -10,7 +10,7 @@ router
   .post(validate(discountValidation.createDiscount), discountRoutes.create);
 router
   .route('/:id')
-  .get(authenticationToken,authorization.checkAdminRole,validate(discountValidation.getDiscount), discountRoutes.getById);
+  .get(discountRoutes.getById);
 router
   .route('/:id')
   .delete(

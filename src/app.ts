@@ -5,10 +5,13 @@ import express from 'express';
 import { NotFoundError } from './errors';
 import { errorHandler } from './middlewares';
 import routes from './routes'
-var morgan = require('morgan')
+const morgan = require('morgan')
+import methodOverride from 'method-override';
+
 const app = express();
 
 app.use(morgan("combined"))
+app.use(methodOverride('_method'));
 app.use(cors());
 app.use(json());
 //

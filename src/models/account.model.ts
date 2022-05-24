@@ -3,6 +3,7 @@ import { OrderDoc } from './order.model';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import mongooseDelete from 'mongoose-delete';
 
 interface token {
   token: string;
@@ -32,6 +33,7 @@ export interface AccountDoc extends mongoose.Document {
   orderIds: OrderDoc[];
   tokens: token[];
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AccountModel extends mongoose.Model<AccountDoc> {
@@ -103,6 +105,7 @@ const accountSchema = new mongoose.Schema({
     },
   ],
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 /**
@@ -159,7 +162,13 @@ accountSchema.pre('save', async function (next) {
 
 accountSchema.statics.build = (attrs: AccountAttrs) => {
   return new Account(attrs);
-};
+}; 
+//Add plugin
+accountSchema.plugin(mongooseDelete, {
+  deleteAt: true,
+  overrideMethods: 'all',
+});
+
 export const Account = mongoose.model<AccountDoc, AccountModel>(
   'accounts',
   accountSchema

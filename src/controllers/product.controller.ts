@@ -94,11 +94,7 @@ export const getItemsByQueries = catchAsync(
   }
 );
 export const create = catchAsync(
-  async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const item = await productService.create(req.body, 'default');
       return res.status(httpStatus.CREATED).send(item);
@@ -106,7 +102,7 @@ export const create = catchAsync(
       next(new ErrorCollection.BadRequestError(err.message));
     }
   }
-)
+);
 
 export const getById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -136,6 +132,22 @@ export const updateById = catchAsync(
 export const deleteById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     await productService.deleteById(req.params.id);
+    return res.status(httpStatus.NO_CONTENT).send();
+  }
+);
+export const getSizeFromProducts = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const results = await Product.distinct('productBySize.size');
+    return res.status(httpStatus.OK).send(results);
+  }
+);
+export const deleteByOption = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const queries = {
+      'productBySize.size': '',
+      price: 0,
+    };
+    await Product.deleteMany(queries)
     return res.status(httpStatus.NO_CONTENT).send();
   }
 );

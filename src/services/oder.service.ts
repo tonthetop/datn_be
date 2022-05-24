@@ -44,6 +44,6 @@ export async function updateById(id: string, body: Object): Promise<OrderDoc> {
  */
 export const deleteById = async (id: string): Promise<OrderDoc | null> => {
   const item = await getById(id);
-  await item.remove();
+  await (Order as any).delete({ _id: item._id })
   return item;
 };

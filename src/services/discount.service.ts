@@ -54,6 +54,6 @@ export const deleteById = async (
   id: string
 ): Promise<DiscountDoc | null> => {
   const item = await getById(id);
-  await item.remove();
+  await (Discount as any).delete({ _id: item._id })
   return item;
 };

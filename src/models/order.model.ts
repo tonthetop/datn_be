@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { AccountDoc } from './account.model';
 import { DiscountDoc } from './discount.model';
 import { ProductDoc } from './product.model';
+import mongooseDelete from 'mongoose-delete';
 
 export interface OrderAttrs {
   accountId: AccountDoc;
@@ -31,9 +32,13 @@ export interface OrderDoc extends mongoose.Document {
     productId: ProductDoc;
     size: string;
     amount: number;
+    price:number;
+    discountValue:number;
+    discountCode:string;
     discountId: DiscountDoc;
   }[];
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface OrderModel extends mongoose.Model<OrderDoc> {
@@ -83,6 +88,18 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         require: true,
       },
+      price: {
+        type: Number,
+        require: true,
+      },
+      discountValue: {
+        type: Number,
+        require: true,
+      },
+      discountCode: {
+        type: String,
+        require: true,
+      },
       discountId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'discounts',
@@ -90,12 +107,17 @@ const orderSchema = new mongoose.Schema({
     },
   ],
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 orderSchema.statics.build = (attrs: OrderAttrs) => {
   return new Order(attrs);
 };
-
+//Add plugin
+orderSchema.plugin(mongooseDelete, {
+  deleteAt: true,
+  overrideMethods: 'all',
+});
 export const Order = mongoose.model<OrderDoc, OrderModel>(
   'orders',
   orderSchema

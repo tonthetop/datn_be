@@ -45,9 +45,9 @@ const updateById = async (productId: string, updateBody: any, files: any="") => 
 };
 
 const deleteById = async (productId: string): Promise<ProductDoc | null> => {
-  const product = await getById(productId);
-  await product.remove();
-  return product;
+  const item = await getById(productId);
+  await (Product as any).delete({ _id: item._id })
+  return item;
 };
 
 export { create, getById, updateById, deleteById };

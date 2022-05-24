@@ -12,9 +12,9 @@ const createOrder = {
     productList: Joi.array()
       .items({
         productId: Joi.string().required().custom(objectId),
+        discountId: Joi.string().custom(objectId),
         size: Joi.string().required(),
         amount: Joi.number().positive().required(),
-        discountId: Joi.string().custom(objectId),
       })
       .required()
       .min(1),
@@ -27,10 +27,12 @@ const getOrder = {
   }),
 };
 const getOrderByEmailOrPhone = {
-  body: Joi.object().keys({
-    email:Joi.string().email(),
-    phone: Joi.string(),
-  }).min(1)
+  body: Joi.object()
+    .keys({
+      email: Joi.string().email(),
+      phone: Joi.string(),
+    })
+    .min(1),
 };
 
 const updateOrder = {
@@ -39,12 +41,11 @@ const updateOrder = {
   }),
   body: Joi.object()
     .keys({
-      orderType: Joi.string().required().valid('COD', 'PAYONL'), // COD - PayOnline
-      deliveryAddress: Joi.string().required(),
-      deliveryTime: Joi.date().required(),
-      receivePhone: Joi.string().required(),
+      deliveryAddress: Joi.string(),
+      deliveryTime: Joi.date(),
+      receivePhone: Joi.string(),
       description: Joi.string().allow('', null).max(500),
-      status: Joi.string().required().valid('ACCEPTED', 'SUCCESS', 'CANCEL'), // ACCEPTED - SUCCESS - CANCEL
+      status: Joi.string().valid('ACCEPTED', 'SUCCESS', 'CANCEL')
     })
     .min(1),
 };
@@ -55,4 +56,10 @@ const deleteOrder = {
   }),
 };
 
-export { createOrder, getOrder,getOrderByEmailOrPhone, updateOrder, deleteOrder };
+export {
+  createOrder,
+  getOrder,
+  getOrderByEmailOrPhone,
+  updateOrder,
+  deleteOrder,
+};

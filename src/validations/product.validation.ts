@@ -38,18 +38,18 @@ const updateProduct = {
   }),
   body: Joi.object()
     .keys({
-      name: Joi.string().trim().required().max(100),
+      name: Joi.string().trim().max(100),
       brand: Joi.string()
         .trim()
-        .required()
+
         .max(10)
         .valid('ADIDAS', 'NIKE', 'JORDAN'),
       productType: Joi.string()
         .trim()
-        .required()
+
         .max(15)
         .valid('GIAY', 'DEP', 'PHUKIEN'),
-      price: Joi.number().positive().required(),
+      price: Joi.number().positive(),
       imgList: Joi.array().items(Joi.string()),
       description: Joi.string().allow('', null).max(500),
       discountIds: Joi.array().items(Joi.string().custom(objectId)),
