@@ -21,7 +21,7 @@ export const create = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let { accountId, productList } = req.body;
     const account = await accountService.getById(accountId);
-    let listProductOrigin: ProductDoc[]=[];
+    let listProductOrigin: ProductDoc[] = [];
     if (account) {
       productList = productList.map(async function (item: any) {
         {
@@ -50,17 +50,32 @@ export const create = catchAsync(
       });
       // cap nhat product orgin vao DB
       productList = await Promise.all(productList);
-      const updateProductOrigin=listProductOrigin.map(async (item:ProductDoc) => {
-        return item.save()
-      });
-      await Promise.all(updateProductOrigin)
+      const updateProductOrigin = listProductOrigin.map(
+        async (item: ProductDoc) => {
+          return item.save();
+        }
+      );
+      await Promise.all(updateProductOrigin);
       // tao order vao DB
-      const item = await orderService.create({ ...req.body, productList });
-      return res.status(httpStatus.CREATED).send(item);
+      const orderStatus = [];
+      orderStatus.push({
+        status: 'PENDING',
+        description: 'Đơn hàng đang chờ xác nhận',
+      });
+      const item = await orderService.create({
+        ...req.body,
+        orderStatus: orderStatus,
+        productList,
+      });
+      if (item.orderType === 'COD')
+        return res.status(httpStatus.CREATED).send(item);
+      else {
+        (res as any).order=item
+        return next();
+      }
     }
   }
 );
-
 
 export const getByEmailOrPhone = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

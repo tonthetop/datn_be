@@ -11,12 +11,18 @@ export interface OrderAttrs {
   deliveryAddress: string;
   receivePhone: string;
   description: string;
-  status: string;
+  orderStatus: {
+    status: string;
+    description: string;
+  }[];
   productList: {
     productId: ProductDoc;
+    discountId: DiscountDoc;
     size: string;
     amount: number;
-    discountId: DiscountDoc;
+    price: number;
+    discountValue: number;
+    discountCode: string;
   }[];
 }
 
@@ -27,15 +33,19 @@ export interface OrderDoc extends mongoose.Document {
   deliveryAddress: string;
   receivePhone: string;
   description: string;
-  status: string;
+  orderStatus: {
+    status: string;
+    description: string;
+    createdAt: Date;
+  }[];
   productList: {
     productId: ProductDoc;
+    discountId: DiscountDoc;
     size: string;
     amount: number;
-    price:number;
-    discountValue:number;
-    discountCode:string;
-    discountId: DiscountDoc;
+    price: number;
+    discountValue: number;
+    discountCode: string;
   }[];
   createdAt: Date;
   updatedAt: Date;
@@ -70,10 +80,22 @@ const orderSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  status: {
-    type: String,
-    require: true,
-  },
+  orderStatus: [
+    {
+      status: {
+        type: String,
+        require: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      description: {
+        type: String,
+        require: true,
+      },
+    },
+  ],
   productList: [
     {
       productId: {

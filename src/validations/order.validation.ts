@@ -8,7 +8,6 @@ const createOrder = {
     deliveryTime: Joi.date().required(),
     receivePhone: Joi.string().required(),
     description: Joi.string().allow('', null).max(500),
-    status: Joi.string().required().valid('ACCEPTED', 'SUCCESS', 'CANCEL'), // ACCEPTED - SUCCESS - CANCEL
     productList: Joi.array()
       .items({
         productId: Joi.string().required().custom(objectId),
@@ -45,7 +44,15 @@ const updateOrder = {
       deliveryTime: Joi.date(),
       receivePhone: Joi.string(),
       description: Joi.string().allow('', null).max(500),
-      status: Joi.string().valid('ACCEPTED', 'SUCCESS', 'CANCEL')
+      orderStatus: Joi.array()
+        .items({
+          status: Joi.string()
+            .required()
+            .valid('PENDING', 'ACCEPTED', 'SUCCESS', 'CANCEL'), // ACCEPTED - SUCCESS - CANCEL,
+          description: Joi.string().allow('', null).max(500),
+        })
+        .required()
+        .min(1),
     })
     .min(1),
 };

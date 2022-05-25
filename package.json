@@ -40,6 +40,7 @@
         "validator": "^13.7.0"
     },
     "devDependencies": {
+        "@types/dateformat": "^5.0.0",
         "@types/http-errors": "^1.8.2",
         "@types/http-status": "^1.1.2",
         "@types/jsonwebtoken": "^8.5.8",

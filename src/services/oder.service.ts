@@ -31,7 +31,6 @@ export const getById = async (id: string): Promise<OrderDoc> => {
  */
 export async function updateById(id: string, body: Object): Promise<OrderDoc> {
   const item = await getById(id);
-  console.log(item);
   Object.assign(item, body);
   await item.save();
   return item;
