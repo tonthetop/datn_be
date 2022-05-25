@@ -11,12 +11,6 @@ const login = catchAsync(async (req, res, next) => {
   );
   const token = await account.generateAuthToken();
   res.send({ account, token });
-
-  // const jwtToken = jwt.sign(
-  //   { id: account.id, email: account.email, role: account.role },
-  //   process.env.JWT_SECRET || 'tuandeptrai123'
-  // );
-  // return res.json({ info: account, token: jwtToken });
 });
 
 const logout = catchAsync(async (req, res, next) => {

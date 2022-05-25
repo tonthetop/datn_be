@@ -5,11 +5,16 @@ import siteRoute from './site.route';
 import authRoute from './auth.route';
 import productRoute from './product.route';
 import orderRoute from './order.route'
+import paymentRoutes from './payment.route'
 import express from 'express';
 
 const router = express.Router();
 
 const defaultRoutes = [
+  {
+    path: '/payment/',
+    route: paymentRoutes,
+  },
   {
     path: '/order/',
     route: orderRoute,

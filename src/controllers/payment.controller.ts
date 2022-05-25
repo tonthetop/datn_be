@@ -1,8 +1,11 @@
 import config from '../config/payment.json';
-import express, { Request, Response, NextFunction } from 'express';
-import dateFormat, { masks } from "dateformat";
+import { Request, Response, NextFunction } from 'express';
+import moment from 'moment';
+import crypto from 'crypto';
 import { orderService } from '../services';
-import * as ErrorCollection from '../errors';
+import { catchAsync } from '../utils';
+import createError from 'http-errors';
+
 function sortObject(obj: any) {
   let sorted: any = {};
   let str = [];
@@ -18,11 +21,11 @@ function sortObject(obj: any) {
   }
   return sorted;
 }
-export const createPaymentUrl = (
+export const createPaymentUrl = catchAsync(async function (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+) {
   let ipAddr =
     req.headers['x-forwarded-for'] ||
     req.connection.remoteAddress ||
@@ -35,8 +38,9 @@ export const createPaymentUrl = (
   let returnUrl = 'http://' + req.headers.host + config.vnp_ReturnUrl;
   //
   let date = new Date();
-  let createDate = dateFormat(date, 'yyyymmddHHmmss');
-  let orderId = dateFormat(date, 'HHmmss');
+
+  let createDate = moment(date).format('yyyyMMDDHHmmss');
+  let orderId = moment(date).format('HHmmss');
   //let amount = req.body.amount;
   //let bankCode = req.body.bankCode;
   // let orderInfo = req.body.orderDescription;
@@ -44,9 +48,9 @@ export const createPaymentUrl = (
   //let locale = req.body.language;
   const order = (req as any).order;
   const price = order.productList.reduce(
-    (a: any, b: any) => a.amount * a.price + b.amount * b.productService
+    (acc: number, obj: any) => acc + obj.amount * obj.price,
+    0
   );
-
   let bankCode = 'NCB';
   let locale = 'vn';
   if (locale === null || locale === '') {
@@ -83,15 +87,15 @@ export const createPaymentUrl = (
   vnp_Params['vnp_SecureHash'] = signed;
   vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
   res.send(vnpUrl);
-};
+});
 
-export const returnPaymentUrl = async (
+export const returnPaymentUrl = catchAsync(async function (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+) {
+  console.log('returnPaymentUrl');
   let vnp_Params: any = req.query;
-
   let secureHash = vnp_Params['vnp_SecureHash'];
 
   delete vnp_Params['vnp_SecureHash'];
@@ -104,32 +108,25 @@ export const returnPaymentUrl = async (
 
   let querystring = require('qs');
   let signData = querystring.stringify(vnp_Params, { encode: false });
-  let crypto = require('crypto');
   let hmac = crypto.createHmac('sha512', secretKey);
   let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
   if (secureHash === signed && vnp_Params['vnp_ResponseCode'] === '00') {
     const orderInfo = vnp_Params['vnp_OrderInfo'].split('_');
-    const orderId = orderInfo.decodeURIComponent(orderInfo[1]);
+    const orderId = decodeURIComponent(orderInfo[1]);
     const order = await orderService.getById(orderId);
+
+    if (order.orderStatus[1]) {
+      throw new createError.BadRequest('Đơn hàng này đã được xử lý');
+    }
     order.orderStatus.push({
       status: 'ACCEPTED',
       description: 'Đơn hàng đã được chấp nhận',
       createdAt: new Date(),
     });
-    order
-      .save()
-      .then((data: any) => data.dataValues)
-      .then((data: any) => {
-        return res.send({ data });
-        //return res.render('returnPayment');
-      })
-      .catch((err) => {
-        return res.status(500).send({
-          message: err.message,
-        });
-      });
+    order.save();
+    return res.send(order);
   } else {
-    next(new ErrorCollection.PaymentError());
+    throw new createError.PaymentRequired();
   }
-};
+});

@@ -1,8 +1,7 @@
 import httpStatus from 'http-status';
 import { productService } from '../services/index';
 import { Product } from '../models';
-import express, { Request, Response, NextFunction } from 'express';
-import * as ErrorCollection from '../errors';
+import { Request, Response, NextFunction } from 'express';
 import { catchAsync } from '../utils';
 
 const convertBase64 = (s: string) => {
@@ -95,12 +94,8 @@ export const getItemsByQueries = catchAsync(
 );
 export const create = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const item = await productService.create(req.body, 'default');
-      return res.status(httpStatus.CREATED).send(item);
-    } catch (err: any) {
-      next(new ErrorCollection.BadRequestError(err.message));
-    }
+    const item = await productService.create(req.body, 'default');
+    return res.status(httpStatus.CREATED).send(item);
   }
 );
 
@@ -147,7 +142,7 @@ export const deleteByOption = catchAsync(
       'productBySize.size': '',
       price: 0,
     };
-    await Product.deleteMany(queries)
+    await Product.deleteMany(queries);
     return res.status(httpStatus.NO_CONTENT).send();
   }
 );

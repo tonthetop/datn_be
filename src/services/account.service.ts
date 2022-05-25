@@ -1,7 +1,6 @@
 import createError from 'http-errors';
-import httpStatus from 'http-status';
 import { Account, AccountDoc } from '../models';
-
+import crypto from 'crypto'
 /**
  * Create item
  * @param {AccountDoc} body
@@ -10,6 +9,8 @@ import { Account, AccountDoc } from '../models';
 export const create = async (body: any): Promise<AccountDoc> => {
   try {
     if (!(await Account.isEmailAndPhoneTaken(body.email, body.phone))) {
+      body.emailToken = crypto.randomBytes(64).toString("hex");
+      body.isVerified = false;
       const item = await Account.create(body);
       return item;
     }

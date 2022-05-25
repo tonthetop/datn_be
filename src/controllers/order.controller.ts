@@ -2,11 +2,10 @@ import httpStatus from 'http-status';
 import {
   orderService,
   accountService,
-  discountService,
   productService,
 } from '../services/index';
 import { Order, ProductDoc } from '../models';
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import createError from 'http-errors';
 import { catchAsync } from '../utils';
 
@@ -70,7 +69,7 @@ export const create = catchAsync(
       if (item.orderType === 'COD')
         return res.status(httpStatus.CREATED).send(item);
       else {
-        (res as any).order=item
+        (req as any).order=item
         return next();
       }
     }

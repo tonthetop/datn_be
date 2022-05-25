@@ -15,7 +15,7 @@ const deliveryError = (err: any) => {
     case 500:
       return new ErrorCollection.DatabaseConnectionError();
     default:
-      return new Error('Something go wrong');
+      return new ErrorCollection.BadRequestError(err.message);
   }
 };
 const catchAsync =
@@ -24,6 +24,7 @@ const catchAsync =
     try {
       return await Promise.resolve(fn(req, res, next));
     } catch (err: any) {
+      console.log('Error in catchAsync: ', err.message);
       return next(deliveryError(err));
     }
   };

@@ -4,6 +4,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import mongooseDelete from 'mongoose-delete';
+import { boolean } from 'joi';
 
 interface token {
   token: string;
@@ -16,6 +17,8 @@ export interface AccountAttrs {
   birth: Date;
   role: string;
   password: string;
+  emailToken:string;
+  isVerified:boolean;
   orderIds: OrderDoc[];
   tokens: token[];
 }
@@ -30,6 +33,8 @@ export interface AccountDoc extends mongoose.Document {
   birth: Date;
   role: string;
   password: string;
+  emailToken:string;
+  isVerified:boolean;
   orderIds: OrderDoc[];
   tokens: token[];
   createdAt: Date;
@@ -89,6 +94,14 @@ const accountSchema = new mongoose.Schema({
         );
       }
     },
+  },
+  emailToken: {
+    type: String,
+    require: true,
+  },
+  isVerified: {
+    type: Boolean,
+    require: true,
   },
   orderIds: [
     {
