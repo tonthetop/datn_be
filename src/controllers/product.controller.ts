@@ -59,7 +59,7 @@ export const getItemsByQueries = catchAsync(
         sort = {};
         break;
     }
-    let items = await Product.find({
+    let products = await Product.find({
       productBySize: {
         $elemMatch: {
           size: size !== '' ? size : { $regex: new RegExp(size, 'i') },
@@ -75,7 +75,7 @@ export const getItemsByQueries = catchAsync(
       .sort(sort)
       .skip(skip)
       .limit(limit);
-    items = checkDiscountAvailable(items);
+    products = checkDiscountAvailable(products);
     const totalRecords = await Product.count({
       productBySize: {
         $elemMatch: {
@@ -89,7 +89,7 @@ export const getItemsByQueries = catchAsync(
       productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
     });
 
-    res.status(httpStatus.OK).send({ totalRecords, items });
+    res.status(httpStatus.OK).send({ totalRecords, products });
   }
 );
 export const create = catchAsync(

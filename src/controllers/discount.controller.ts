@@ -7,7 +7,7 @@ import { catchAsync } from '../utils';
 //
 export const getAll = catchAsync(async (req: Request, res: Response) => {
   const discounts = await Discount.find({});
-  res.status(httpStatus.CREATED).send(discounts);
+  res.status(httpStatus.OK).send(discounts);
 });
 export const create = catchAsync(
   async (
