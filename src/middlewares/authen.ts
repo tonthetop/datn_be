@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import express, { Request, Response, NextFunction } from 'express';
 import { Account } from '../models';
 import * as ErrorCollection from '../errors';
+import { string } from 'joi';
 /**
  * Authentication Token(in System)
  * Param in request.body
@@ -24,8 +25,8 @@ async function authenticationToken(
     }
     jwt.verify(
       token,
-      process.env.JWT_SECRET || 'tuandeptrai123',
-      async (err, payload) => {
+      (process.env.JWT_SECRET as any),
+      async (err:any, payload:any) => {
         //error verify
         if (err) {
           res.statusMessage = err.message || 'Token is not valid';

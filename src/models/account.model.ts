@@ -130,7 +130,7 @@ accountSchema.methods.generateAuthToken = async function (): Promise<string> {
   const account = this;
   const token = jwt.sign(
     { _id: account._id, email: account.email, role: account.role },
-    process.env.JWT_SECRET || 'tuandeptrai123'
+    process.env.JWT_SECRET as any
   );
   account.tokens = account.tokens.concat({ token });
   await account.save();

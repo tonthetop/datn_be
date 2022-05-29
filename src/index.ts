@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { app } from './app';
 
 const port = process.env.PORT || 8080;
-const url = process.env.MONGODB_URL || 'http://localhost:27017';
+const url:any = process.env.MONGODB_URL;
 console.log(url);
 
 const gracefulExit = () => {
