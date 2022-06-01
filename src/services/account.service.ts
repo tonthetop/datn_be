@@ -14,9 +14,9 @@ export const create = async (body: any): Promise<AccountDoc> => {
       const item = await Account.create(body);
       return item;
     }
-    throw new createError.BadRequest('item already exists');
+    throw new createError.Conflict('item already exists');
   } catch (err: any) {
-    throw new createError.BadRequest(err.message);
+    throw new createError.InternalServerError(err.message);
   }
 };
 
@@ -65,7 +65,7 @@ export async function updateById(
   if ((body as any).phone) {
     const itemPhone = await Account.findOne({phone: (body as any).phone });
     if (itemPhone) {
-      if (item._id.toString() !==itemPhone._id.toString() ) throw new createError.BadRequest('Phone number already exits');
+      if (item._id.toString() !==itemPhone._id.toString() ) throw new createError.Conflict('Phone number already exits');
     }
   }
   Object.assign(item, body);

@@ -1,29 +1,23 @@
- function devicePromise(x, y) {
-     if (y === 0) {
-         return Promise.reject(new Error('can not divice'));
-     } else {
-         return Promise.resolve(x / y);
-     }
- }
- //  async function devideWithAwait() {
- //      try {
- //          return await devicePromise(6, 0);
- //      } catch (error) {
- //          console.error(error.message);
- //      }
- //  }
- function devideWithOutAwait() {
-     console.log('tuandeptrai');
-     return devicePromise(6, 0);
+const fs = require('fs');
+const path = require('path');
+// const rawFileLink = path.join(__dirname, 'products_Origin.json');
+const newFileLink = path.join(__dirname, 'newProduct.json');
 
- }
- async function run() {
-     //const result = await devideWithAwait()
-     try {
-         const result2 = await devideWithOutAwait();
-         console.log(result2);
-     } catch (error) {
-         console.log(error.message);
-     }
- }
- run();
+async function saveToFile(payload) {
+    const data = JSON.stringify(payload);
+    return fs.writeFile(newFileLink, data, () => {
+        /* Silent error */
+    });
+}
+let json = require('./products_Origin.json');
+json = json.map((e) => {
+    const item = JSON.parse(JSON.stringify(e));
+    if (item.productBySize[0].size === 'sold_out') {
+        item.productBySize[0].size = Math.floor(
+            Math.random() * (49 - 32 + 1) + 32
+        );
+        item.productBySize[0].amount = 0;
+    }
+    return item;
+});
+saveToFile(json)

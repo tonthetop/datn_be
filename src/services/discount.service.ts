@@ -13,7 +13,7 @@ export const create = async (body: any): Promise<DiscountDoc> => {
     const item = await Discount.create(body);
     return item;
   } catch (err: any) {
-    throw new Error(err.message);
+    throw new createError.InternalServerError(err.message);
   }
 };
 

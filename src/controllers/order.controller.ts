@@ -69,7 +69,7 @@ export const create = catchAsync(
       if (item.orderType === 'COD')
         return res.status(httpStatus.CREATED).send(item);
       else {
-        (req as any).order=item
+        (req as any).order = item;
         return next();
       }
     }
@@ -81,10 +81,9 @@ export const getByEmailOrPhone = catchAsync(
     console.log(req.body);
     const { email, phone } = req.body;
     const account = await accountService.getByEmailOrPhone(email, phone);
-    const orders = await Order.find({ accountId: account._id }).populate(
-      'productList.productId',
-      'name imgList'
-    );
+    const orders = await Order.find({ accountId: account._id })
+      .populate('productList.productId', 'name imgList')
+      .populate('accountId', 'name phone email');
     // luc nay chi co [] or [orders]
     res.send(orders);
   }

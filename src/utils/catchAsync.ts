@@ -12,10 +12,12 @@ const deliveryError = (err: any) => {
       return new ErrorCollection.ForbiddenError();
     case 404:
       return new ErrorCollection.NotFoundError();
+    case 409:
+      return new ErrorCollection.ConflictErorr(err.message);
     case 500:
-      return new ErrorCollection.DatabaseConnectionError();
+      return new ErrorCollection.ServerError(err.message);
     default:
-      return new ErrorCollection.BadRequestError(err.message);
+      return new ErrorCollection.ServerError(err.message);
   }
 };
 const catchAsync =

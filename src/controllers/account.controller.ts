@@ -14,7 +14,7 @@ export const create = catchAsync(
     const account = await accountService.create(req.body);
     //send mail
     const msg = {
-      from: '"The Movie PBL6 App" <theMovieApp@example.com>', // sender address
+      from: '"The Shoes App" <theShoesApp@example.com>', // sender address
       to: `${account.email}`, // list of receivers
       subject: 'Verification for your account', // Subject line
       text: `Hello, thanks for registering on our site.

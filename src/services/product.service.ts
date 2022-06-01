@@ -15,7 +15,7 @@ const create = async (body: ProductDoc, files: any): Promise<ProductDoc> => {
   // );
   //const product = await Product.create({ ...body, imgList: listFilePaths });
   const productExitsName=await Product.findOne({name:body.name})
-  if (productExitsName) throw new createError.BadRequest("Product Name already exists")
+  if (productExitsName) throw new createError.Conflict("Product Name already exists")
   const product = await Product.create({ ...body});
 
   return product;
