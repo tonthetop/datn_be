@@ -51,8 +51,8 @@ async function authenticationToken(
       }
     );
   } catch (err) {
-    console.log('error', err);
-    res.statusMessage = 'Something error';
+    console.log('Something error in AuthenMiddleWare', err);
+    res.statusMessage = 'Something error in AuthenMiddleWare';
     res.status(500).send();
   }
 }

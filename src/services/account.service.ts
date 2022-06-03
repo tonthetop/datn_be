@@ -1,23 +1,19 @@
 import createError from 'http-errors';
 import { Account, AccountDoc } from '../models';
-import crypto from 'crypto'
+import crypto from 'crypto';
 /**
  * Create item
  * @param {AccountDoc} body
  * @returns {Promise<AccountDoc>}
  */
 export const create = async (body: any): Promise<AccountDoc> => {
-  try {
-    if (!(await Account.isEmailAndPhoneTaken(body.email, body.phone))) {
-      body.emailToken = crypto.randomBytes(64).toString("hex");
-      body.isVerified = false;
-      const item = await Account.create(body);
-      return item;
-    }
-    throw new createError.Conflict('item already exists');
-  } catch (err: any) {
-    throw new createError.InternalServerError(err.message);
+  if (!(await Account.isEmailAndPhoneTaken(body.email, body.phone))) {
+    body.emailToken = crypto.randomBytes(64).toString('hex');
+    body.isVerified = false;
+    const item = await Account.create(body);
+    return item;
   }
+  throw new createError.Conflict('Account already exists');
 };
 
 /**
@@ -63,9 +59,10 @@ export async function updateById(
 ): Promise<AccountDoc> {
   const item = await getById(id);
   if ((body as any).phone) {
-    const itemPhone = await Account.findOne({phone: (body as any).phone });
+    const itemPhone = await Account.findOne({ phone: (body as any).phone });
     if (itemPhone) {
-      if (item._id.toString() !==itemPhone._id.toString() ) throw new createError.Conflict('Phone number already exits');
+      if (item._id.toString() !== itemPhone._id.toString())
+        throw new createError.Conflict('Phone number already exits');
     }
   }
   Object.assign(item, body);
@@ -80,6 +77,6 @@ export async function updateById(
  */
 export const deleteById = async (id: string): Promise<AccountDoc | null> => {
   const item = await getById(id);
-  await (Account as any).delete({ _id: item._id })
+  await (Account as any).delete({ _id: item._id });
   return item;
 };

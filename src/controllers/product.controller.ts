@@ -132,7 +132,7 @@ export const deleteById = catchAsync(
 );
 export const getSizeFromProducts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const results = await Product.distinct('productBySize.size');
+    let results = await Product.distinct('productBySize.size');
     return res.status(httpStatus.OK).send(results);
   }
 );
