@@ -14,9 +14,13 @@ const createOrder = {
         discountId: Joi.string().custom(objectId),
         size: Joi.string().required(),
         amount: Joi.number().positive().required(),
+        price: Joi.number().positive().required(),
+        discountValue: Joi.number().positive(),
+        discountCode: Joi.string(),
       })
       .required()
       .min(1),
+    bankCode: Joi.string(),
   }),
 };
 

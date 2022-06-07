@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { orderService } from '../services';
 import { catchAsync } from '../utils';
 import createError from 'http-errors';
-
+import httpStatus from 'http-status';
 function sortObject(obj: any) {
   let sorted: any = {};
   let str = [];
@@ -42,7 +42,7 @@ export const createPaymentUrl = catchAsync(async function (
   let createDate = moment(date).format('yyyyMMDDHHmmss');
   let orderId = moment(date).format('HHmmss');
   //let amount = req.body.amount;
-  //let bankCode = req.body.bankCode;
+  let bankCode = req.body.bankCode;
   // let orderInfo = req.body.orderDescription;
   // let orderType = req.body.orderType;
   //let locale = req.body.language;
@@ -51,7 +51,6 @@ export const createPaymentUrl = catchAsync(async function (
     (acc: number, obj: any) => acc + obj.amount * obj.price,
     0
   );
-  let bankCode = 'NCB';
   let locale = 'vn';
   if (locale === null || locale === '') {
     locale = 'vn';
@@ -66,7 +65,7 @@ export const createPaymentUrl = catchAsync(async function (
   vnp_Params['vnp_CurrCode'] = currCode;
   vnp_Params['vnp_TxnRef'] = orderId;
   //
-  vnp_Params['vnp_OrderInfo'] = `Order_${order._id}`;
+  vnp_Params['vnp_OrderInfo'] = `Bill Payment for Order_${order._id}`;
   vnp_Params['vnp_OrderType'] = 'billpayment';
   vnp_Params['vnp_Amount'] = price * 100;
   //
@@ -86,7 +85,7 @@ export const createPaymentUrl = catchAsync(async function (
   let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
   vnp_Params['vnp_SecureHash'] = signed;
   vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-  res.send(vnpUrl);
+  res.status(httpStatus.CREATED).send(vnpUrl);
 });
 
 export const returnPaymentUrl = catchAsync(async function (

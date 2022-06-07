@@ -16,8 +16,9 @@ export const create = async (body: any): Promise<OrderDoc> => {
  * @returns {Promise<OrderDoc>}
  */
 export const getById = async (id: string): Promise<OrderDoc> => {
-  const item = await Order.findById(id);
-
+  const item = await Order.findById(id)
+    .populate('accountId', 'name phone email')
+    .populate('productList.productId', 'name imgList');
   if (!item) throw new createError.NotFound();
 
   return item;
@@ -43,6 +44,6 @@ export async function updateById(id: string, body: Object): Promise<OrderDoc> {
  */
 export const deleteById = async (id: string): Promise<OrderDoc | null> => {
   const item = await getById(id);
-  await (Order as any).delete({ _id: item._id })
+  await (Order as any).delete({ _id: item._id });
   return item;
 };
