@@ -7,9 +7,8 @@ const createUser = {
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
     address: Joi.string().required(),
-    phone: Joi.string().required(),   
+    phone: Joi.string().required(),
     birth: Joi.date().required(),
-    role: Joi.string().required().valid('USER', 'ADMIN'),
   }),
 };
 
@@ -25,12 +24,12 @@ const updateUser = {
   }),
   body: Joi.object()
     .keys({
-    password: Joi.string().custom(password),
-    name: Joi.string(),
-    address: Joi.string(),
-    phone: Joi.string(),
-    birth: Joi.string(),
-    orderIds: Joi.array().items(Joi.object()),
+      password: Joi.string().custom(password),
+      name: Joi.string(),
+      address: Joi.string(),
+      phone: Joi.string(),
+      birth: Joi.string(),
+      orderIds: Joi.array().items(Joi.object()),
     })
     .min(1),
 };

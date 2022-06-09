@@ -124,7 +124,7 @@ export const returnPaymentUrl = catchAsync(async function (
       createdAt: new Date(),
     });
     order.save();
-    return res.send(order);
+    return res.redirect(`http://localhost:3000/thankyou/${order._id}`);
   } else {
     throw new createError.PaymentRequired();
   }

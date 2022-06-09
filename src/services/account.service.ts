@@ -10,6 +10,7 @@ export const create = async (body: any): Promise<AccountDoc> => {
   if (!(await Account.isEmailAndPhoneTaken(body.email, body.phone))) {
     body.emailToken = crypto.randomBytes(64).toString('hex');
     body.isVerified = false;
+    body.role = 'USER';
     const item = await Account.create(body);
     return item;
   }
@@ -44,6 +45,23 @@ export async function getByEmailOrPhone(
     phone: phone ? phone : { $regex: new RegExp(phone, 'i') },
   });
   if (!item) throw new createError.NotFound();
+  return item;
+}
+
+/**
+ * Get item by email or phone
+ * @param {AccountDoc} body
+ * @returns {Promise<AccountDoc>}
+ */
+export async function getAcountOrCreateNew(body: any): Promise<AccountDoc> {
+  const item = await Account.findOne({
+    email: body.email,
+  });
+  if (!item) {
+    body.role = 'USER';
+    const item = await Account.create(body);
+    return item;
+  }
   return item;
 }
 

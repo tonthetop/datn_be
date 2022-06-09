@@ -47,8 +47,9 @@ export const create = catchAsync(
           return item;
         }
       });
-      // cap nhat product orgin vao DB
       productList = await Promise.all(productList);
+
+      // cap nhat product orgin vao DB
       const updateProductOrigin = listProductOrigin.map(
         async (item: ProductDoc) => {
           return item.save();
@@ -66,6 +67,9 @@ export const create = catchAsync(
         orderStatus: orderStatus,
         productList,
       });
+      // Cập nhật orderId vào account table:
+      accountService.updateById(account._id,{orderIds:[...account.orderIds,item._id]})
+
       if (item.orderType === 'COD')
         return res.status(httpStatus.CREATED).send(item);
       else {

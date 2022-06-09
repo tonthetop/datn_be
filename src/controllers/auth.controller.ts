@@ -1,7 +1,8 @@
 import { catchAsync } from '../utils/catchAsync';
-import { authService } from '../services';
+import { accountService, authService } from '../services';
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
+import axios from 'axios';
 
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -38,4 +39,22 @@ const logoutAll = catchAsync(async (req, res, next) => {
   }
 });
 
-export { login, logout, logoutAll };
+const loginWithGoogle = catchAsync(async (req: any, res: any) => {
+  const tokenCredential = await req.params.token;
+  //get Info user
+  const url = `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${tokenCredential}`;
+  const result = await axios.get(url);
+  const user = {
+    email: result.data.email,
+    name: result.data.name,
+  };
+
+  // create user into DB or return item if exits
+  const account = await accountService.getAcountOrCreateNew(user);
+
+  const token = await account.generateAuthToken();
+
+  res.send({ account, token });
+});
+
+export { login, logout, logoutAll, loginWithGoogle };
