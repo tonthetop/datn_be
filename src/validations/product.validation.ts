@@ -41,12 +41,10 @@ const updateProduct = {
       name: Joi.string().trim().max(100),
       brand: Joi.string()
         .trim()
-
         .max(10)
         .valid('ADIDAS', 'NIKE', 'JORDAN'),
       productType: Joi.string()
         .trim()
-
         .max(15)
         .valid('GIAY', 'DEP', 'PHUKIEN'),
       price: Joi.number().positive(),

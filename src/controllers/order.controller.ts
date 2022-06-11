@@ -12,8 +12,18 @@ import { catchAsync } from '../utils';
 //
 export const getItemsByQueries = catchAsync(
   async (req: Request, res: Response) => {
-    const items = await Order.find({});
-    res.status(httpStatus.OK).send({ items });
+    const orders = await Order.find({})
+      .populate('productList.productId', 'name imgList')
+      .populate('accountId', 'name phone email');
+    res.status(httpStatus.OK).send({ orders });
+  }
+);
+export const getItemsDeleted = catchAsync(
+  async (req: Request, res: Response) => {
+    const orders = await Order.findDeleted({})
+      .populate('productList.productId', 'name imgList')
+      .populate('accountId', 'name phone email');
+    res.status(httpStatus.OK).send({ orders });
   }
 );
 export const create = catchAsync(
@@ -68,7 +78,9 @@ export const create = catchAsync(
         productList,
       });
       // Cập nhật orderId vào account table:
-      accountService.updateById(account._id,{orderIds:[...account.orderIds,item._id]})
+      accountService.updateById(account._id, {
+        orderIds: [...account.orderIds, item._id],
+      });
 
       if (item.orderType === 'COD')
         return res.status(httpStatus.CREATED).send(item);

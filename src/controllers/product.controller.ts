@@ -26,6 +26,21 @@ const checkDiscountAvailable = (items: any[]) => {
   return items;
 };
 //
+export const getAllProducts = catchAsync(
+  async (req: Request, res: Response) => {
+    let products = await Product.find({}).populate('discountIds');
+    products = checkDiscountAvailable(products);
+    res.status(httpStatus.OK).send({ totalRecords: products.length, products });
+  }
+);
+export const getProductsDeleted = catchAsync(
+  async (req: Request, res: Response) => {
+    let products = await Product.findDeleted({}).populate('discountIds');
+    products = checkDiscountAvailable(products);
+    res.status(httpStatus.OK).send({ totalRecords: products.length, products });
+  }
+);
+//
 export const getItemsByQueries = catchAsync(
   async (req: Request, res: Response) => {
     const filter = req.query.filter as string;

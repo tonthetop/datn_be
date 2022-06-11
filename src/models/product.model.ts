@@ -33,6 +33,7 @@ export interface ProductDoc extends mongoose.Document {
 }
 
 export interface ProductModel extends mongoose.Model<ProductDoc> {
+  [x: string]: any;
   build(attrs: ProductAttrs): ProductDoc;
 }
 

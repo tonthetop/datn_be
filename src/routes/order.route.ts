@@ -8,6 +8,8 @@ import { validate } from '../middlewares';
 
 const router = express.Router();
 router.route('/').get(orderRoutes.getItemsByQueries);
+router.route('/deleted').get(orderRoutes.getItemsDeleted);
+
 router
   .route('/get-by-email-or-phone')
   .post(

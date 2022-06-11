@@ -5,6 +5,8 @@ import { app } from './app';
 
 const port = process.env.PORT || 8080;
 const url:any = process.env.MONGODB_URL;
+//const url:any = process.env.MONGODB_URL_LOCAL;
+
 console.log(url);
 
 const gracefulExit = () => {

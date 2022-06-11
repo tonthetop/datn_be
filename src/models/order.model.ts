@@ -52,6 +52,7 @@ export interface OrderDoc extends mongoose.Document {
 }
 
 export interface OrderModel extends mongoose.Model<OrderDoc> {
+  [x: string]: any;
   build(attrs: OrderAttrs): OrderDoc;
 }
 
