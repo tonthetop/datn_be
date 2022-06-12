@@ -15,7 +15,7 @@ export const getItemsByQueries = catchAsync(
     const orders = await Order.find({})
       .populate('productList.productId', 'name imgList')
       .populate('accountId', 'name phone email');
-    res.status(httpStatus.OK).send({ orders });
+    res.status(httpStatus.OK).send( orders );
   }
 );
 export const getItemsDeleted = catchAsync(
@@ -23,7 +23,13 @@ export const getItemsDeleted = catchAsync(
     const orders = await Order.findDeleted({})
       .populate('productList.productId', 'name imgList')
       .populate('accountId', 'name phone email');
-    res.status(httpStatus.OK).send({ orders });
+    res.status(httpStatus.OK).send(orders );
+  }
+);
+export const restoreById = catchAsync(
+  async (req: Request, res: Response) => {
+    let result = await Order.restore({_id:req.params.id})
+    res.status(httpStatus.OK).send(result );
   }
 );
 export const create = catchAsync(

@@ -9,6 +9,7 @@ import { validate } from '../middlewares';
 const router = express.Router();
 router.route('/').get(orderRoutes.getItemsByQueries);
 router.route('/deleted').get(orderRoutes.getItemsDeleted);
+router.route('/restore/:id').get(orderRoutes.restoreById);
 
 router
   .route('/get-by-email-or-phone')
@@ -31,6 +32,7 @@ router
 router
   .route('/:id')
   .delete(validate(orderValidation.deleteOrder), orderRoutes.deleteById);
+
 router
   .route('/:id')
   .put(validate(orderValidation.updateOrder), orderRoutes.updateById);

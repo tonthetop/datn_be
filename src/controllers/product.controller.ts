@@ -30,14 +30,21 @@ export const getAllProducts = catchAsync(
   async (req: Request, res: Response) => {
     let products = await Product.find({}).populate('discountIds');
     products = checkDiscountAvailable(products);
-    res.status(httpStatus.OK).send({ totalRecords: products.length, products });
+    res.status(httpStatus.OK).send(products);
   }
 );
 export const getProductsDeleted = catchAsync(
   async (req: Request, res: Response) => {
     let products = await Product.findDeleted({}).populate('discountIds');
     products = checkDiscountAvailable(products);
-    res.status(httpStatus.OK).send({ totalRecords: products.length, products });
+    res.status(httpStatus.OK).send(products );
+  }
+);
+//
+export const restoreById = catchAsync(
+  async (req: Request, res: Response) => {
+    let result = await Product.restore({_id:req.params.id})
+    res.status(httpStatus.OK).send(result );
   }
 );
 //
