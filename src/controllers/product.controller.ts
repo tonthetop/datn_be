@@ -9,13 +9,15 @@ const convertBase64 = (s: string) => {
 };
 
 const checkDiscountAvailable = (items: any[]) => {
+  items=JSON.parse(JSON.stringify(items))
   if (items.length > 0) {
     items = items.map((item) => {
+      item.listDiscount=JSON.parse(JSON.stringify(item.discountIds));
       const lastestDis = item.discountIds.pop();
       if (lastestDis) {
         if (
-          lastestDis.timeBegin < new Date() &&
-          lastestDis.timeEnd > new Date()
+          new Date(lastestDis.timeBegin) < new Date() &&
+          new Date(lastestDis.timeEnd) > new Date()
         )
           item.discountIds = [lastestDis];
         else item.discountIds = [];

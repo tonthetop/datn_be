@@ -54,6 +54,8 @@ const updateOrder = {
             .required()
             .valid('PENDING', 'ACCEPTED', 'SUCCESS', 'CANCEL'), // ACCEPTED - SUCCESS - CANCEL,
           description: Joi.string().allow('', null).max(500),
+          _id:Joi.string(),
+          createdAt:Joi.string(),
         })
         .required()
         .min(1),
