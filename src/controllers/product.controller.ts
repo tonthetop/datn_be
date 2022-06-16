@@ -9,10 +9,10 @@ const convertBase64 = (s: string) => {
 };
 
 const checkDiscountAvailable = (items: any[]) => {
-  items=JSON.parse(JSON.stringify(items))
+  items = JSON.parse(JSON.stringify(items));
   if (items.length > 0) {
     items = items.map((item) => {
-      item.listDiscount=JSON.parse(JSON.stringify(item.discountIds));
+      item.listDiscount = JSON.parse(JSON.stringify(item.discountIds));
       const lastestDis = item.discountIds.pop();
       if (lastestDis) {
         if (
@@ -28,6 +28,16 @@ const checkDiscountAvailable = (items: any[]) => {
   return items;
 };
 //
+export const countProduct = catchAsync(
+  async (req: Request, res: Response) => {
+    const queryParam=req.query.type
+    const result = await Product.aggregate([
+      { $group: { _id: `$${queryParam}`, count: { $sum: 1 } } },
+    ]);
+    res.status(httpStatus.OK).send(result);
+  }
+);
+//
 export const getAllProducts = catchAsync(
   async (req: Request, res: Response) => {
     let products = await Product.find({}).populate('discountIds');
@@ -39,16 +49,14 @@ export const getProductsDeleted = catchAsync(
   async (req: Request, res: Response) => {
     let products = await Product.findDeleted({}).populate('discountIds');
     products = checkDiscountAvailable(products);
-    res.status(httpStatus.OK).send(products );
+    res.status(httpStatus.OK).send(products);
   }
 );
 //
-export const restoreById = catchAsync(
-  async (req: Request, res: Response) => {
-    let result = await Product.restore({_id:req.params.id})
-    res.status(httpStatus.OK).send(result );
-  }
-);
+export const restoreById = catchAsync(async (req: Request, res: Response) => {
+  let result = await Product.restore({ _id: req.params.id });
+  res.status(httpStatus.OK).send(result);
+});
 //
 export const getItemsByQueries = catchAsync(
   async (req: Request, res: Response) => {

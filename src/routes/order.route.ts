@@ -10,31 +10,11 @@ const router = express.Router();
 router.route('/').get(orderRoutes.getItemsByQueries);
 router.route('/deleted').get(orderRoutes.getItemsDeleted);
 router.route('/restore/:id').get(orderRoutes.restoreById);
-
-router
-  .route('/get-by-email-or-phone')
-  .post(
-    validate(orderValidation.getOrderByEmailOrPhone),
-    orderRoutes.getByEmailOrPhone
-  );
-router
-  .route('/')
-  .post(
-    authenticationToken,
-    authorization.checkMemberRole,
-    validate(orderValidation.createOrder),
-    orderRoutes.create,
-    paymentRoutes.createPaymentUrl
-  );
-router
-  .route('/:id')
-  .get(validate(orderValidation.getOrder), orderRoutes.getById);
-router
-  .route('/:id')
-  .delete(validate(orderValidation.deleteOrder), orderRoutes.deleteById);
-
-router
-  .route('/:id')
-  .put(validate(orderValidation.updateOrder), orderRoutes.updateById);
+router.route('/count-revenue').get(orderRoutes.countRevenue);
+router.route('/get-by-email-or-phone').post(validate(orderValidation.getOrderByEmailOrPhone),orderRoutes.getByEmailOrPhone);
+router.route('/').post(authenticationToken,authorization.checkMemberRole,validate(orderValidation.createOrder),orderRoutes.create,paymentRoutes.createPaymentUrl);
+router.route('/:id').get(validate(orderValidation.getOrder), orderRoutes.getById);
+router.route('/:id').delete(validate(orderValidation.deleteOrder), orderRoutes.deleteById);
+router.route('/:id').put(validate(orderValidation.updateOrder), orderRoutes.updateById);
 
 export default router;

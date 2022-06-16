@@ -4,10 +4,11 @@ import {
   accountService,
   productService,
 } from '../services/index';
-import { Order, ProductDoc } from '../models';
+import { Order, Product, ProductDoc } from '../models';
 import { Request, Response, NextFunction } from 'express';
 import createError from 'http-errors';
 import { catchAsync } from '../utils';
+import { AnyArray } from 'mongoose';
 
 //
 export const getItemsByQueries = catchAsync(
@@ -15,7 +16,7 @@ export const getItemsByQueries = catchAsync(
     const orders = await Order.find({})
       .populate('productList.productId', 'name imgList')
       .populate('accountId', 'name phone email');
-    res.status(httpStatus.OK).send( orders );
+    res.status(httpStatus.OK).send(orders);
   }
 );
 export const getItemsDeleted = catchAsync(
@@ -23,15 +24,13 @@ export const getItemsDeleted = catchAsync(
     const orders = await Order.findDeleted({})
       .populate('productList.productId', 'name imgList')
       .populate('accountId', 'name phone email');
-    res.status(httpStatus.OK).send(orders );
+    res.status(httpStatus.OK).send(orders);
   }
 );
-export const restoreById = catchAsync(
-  async (req: Request, res: Response) => {
-    let result = await Order.restore({_id:req.params.id})
-    res.status(httpStatus.OK).send(result );
-  }
-);
+export const restoreById = catchAsync(async (req: Request, res: Response) => {
+  let result = await Order.restore({ _id: req.params.id });
+  res.status(httpStatus.OK).send(result);
+});
 export const create = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let { accountId, productList } = req.body;
@@ -129,5 +128,107 @@ export const deleteById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     await orderService.deleteById(req.params.id);
     return res.status(httpStatus.NO_CONTENT).send();
+  }
+);
+//
+const getTotalPriceOfADate = async (listOrder: any, option: any) => {
+  return await listOrder.reduce(
+    async (acc: any, item: any) =>
+      (await acc) + (await getTotalPriceOfOrder(item.productList, option)),
+    0
+  );
+};
+const getTotalPriceOfOrder = async (carts: any, option: any) => {
+  if (option.type === '') {
+    return carts.reduce((acc: any, item: any) => {
+      //
+      const discountValue = item.discountValue ? item.discountValue : 0;
+      const priceOrigin = item.price * (1 - discountValue / 100) * item.amount;
+      return acc + priceOrigin;
+    }, 0);
+  } else if (option.type === 'brand') {
+    return await carts.reduce(async (acc: any, item: any) => {
+      //
+      const productInfo = await Product.find({ _id: item.productId._id });
+      if (productInfo.length > 0 && productInfo[0].brand === option.value) {
+        const discountValue = item.discountValue ? item.discountValue : 0;
+        const priceOrigin =
+          item.price * (1 - discountValue / 100) * item.amount;
+        return (await acc) + priceOrigin;
+      } else return (await acc) + 0;
+    }, 0);
+  } else if (option.type === 'productType') {
+    return await carts.reduce(async (acc: any, item: any) => {
+      //
+      const productInfo = await Product.find({ _id: item.productId._id });
+      if (productInfo.length > 0 && productInfo[0].productType === option.value) {
+        const discountValue = item.discountValue ? item.discountValue : 0;
+        const priceOrigin =
+          item.price * (1 - discountValue / 100) * item.amount;
+        return (await acc) + priceOrigin;
+      } else return (await acc) + 0;
+    }, 0);
+  }
+};
+//
+export const countRevenue = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    //
+    const dateRange = (req.query.dateRange as any).split('--');
+    const type = req.query.type || '';
+    const value = req.query.value || '';
+    // const
+    const largeDate = new Date(dateRange[1]);
+    largeDate.setDate(largeDate.getDate() + 1)
+    const result = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(dateRange[0]),
+            $lte: largeDate,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          orderIds: {
+            $push: '$_id',
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'orderIds',
+          foreignField: '_id',
+          as: 'orders_doc',
+        },
+      },
+    ]);
+
+    const dataPromise = result.map(async (item) => {
+      return {
+        date: item._id,
+        totalBill: await getTotalPriceOfADate(item.orders_doc, { type, value }),
+      };
+    });
+    const data = await Promise.all(dataPromise);
+    res.send(data);
+
+    // const dataPromise= result.map(async (resultItem)=>{
+    //   const listOrderPromise= resultItem.orderIds.map(async(item:any)=>{
+    //       return await Order.find({_id:item})
+    //   })
+    //   const listOrderResult=await Promise.all(listOrderPromise)
+    //   return listOrderResult
+    // })
+    // const resultFinal=await Promise.all(dataPromise)
+    //
   }
 );
