@@ -14,13 +14,13 @@ const create = async (body: ProductDoc, files: any): Promise<ProductDoc> => {
   //   item.link.path.slice(7).replace('\\', '/')
   // );
   //const product = await Product.create({ ...body, imgList: listFilePaths });
-  const productExitsName=await Product.findOne({name:body.name})
-  if (productExitsName) throw new createError.Conflict("Product Name already exists")
-  const product = await Product.create({ ...body});
+  const productExitsName = await Product.findOne({ name: body.name });
+  if (productExitsName)
+    throw new createError.Conflict('Product Name already exists');
+  const product = await Product.create({ ...body });
 
   return product;
 };
-
 
 const getById = async (id: string) => {
   const item = await Product.findById(id).populate('discountIds');
@@ -28,7 +28,11 @@ const getById = async (id: string) => {
   return item;
 };
 
-const updateById = async (productId: string, updateBody: any, files: any="") => {
+const updateById = async (
+  productId: string,
+  updateBody: any,
+  files: any = ''
+) => {
   const product = await getById(productId);
 
   // console.log('FILE: ', files);
@@ -46,8 +50,18 @@ const updateById = async (productId: string, updateBody: any, files: any="") => 
 
 const deleteById = async (productId: string): Promise<ProductDoc | null> => {
   const item = await getById(productId);
-  await (Product as any).delete({ _id: item._id })
+  await (Product as any).delete({ _id: item._id });
   return item;
 };
 
-export { create, getById, updateById, deleteById };
+/**
+ * Delete item by id
+ * @param {string} id
+ * @returns {Promise<ProductDoc|null>}
+ */
+const deleteForceById = async (id: string): Promise<ProductDoc | null> => {
+  await (Product as any).deleteOne({ _id:id });
+  return null;
+};
+
+export { create, getById, updateById, deleteById, deleteForceById };

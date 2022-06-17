@@ -14,7 +14,8 @@ router.route('/count-revenue').get(orderRoutes.countRevenue);
 router.route('/get-by-email-or-phone').post(validate(orderValidation.getOrderByEmailOrPhone),orderRoutes.getByEmailOrPhone);
 router.route('/').post(authenticationToken,authorization.checkMemberRole,validate(orderValidation.createOrder),orderRoutes.create,paymentRoutes.createPaymentUrl);
 router.route('/:id').get(validate(orderValidation.getOrder), orderRoutes.getById);
-router.route('/:id').delete(validate(orderValidation.deleteOrder), orderRoutes.deleteById);
 router.route('/:id').put(validate(orderValidation.updateOrder), orderRoutes.updateById);
+router.route('/:id').delete(validate(orderValidation.deleteOrder), orderRoutes.deleteById);
+router.route('/delete-force/:id').delete(validate(orderValidation.deleteOrder), orderRoutes.deleteForceById);
 
 export default router;

@@ -162,6 +162,12 @@ export const deleteById = catchAsync(
     return res.status(httpStatus.NO_CONTENT).send();
   }
 );
+export const deleteForceById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    await productService.deleteForceById(req.params.id);
+    return res.status(httpStatus.NO_CONTENT).send();
+  }
+);
 export const getSizeFromProducts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let results = await Product.distinct('productBySize.size');

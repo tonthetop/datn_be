@@ -47,3 +47,13 @@ export const deleteById = async (id: string): Promise<OrderDoc | null> => {
   await (Order as any).delete({ _id: item._id });
   return item;
 };
+
+/**
+ * Delete item by id
+ * @param {string} id
+ * @returns {Promise<OrderDoc|null>}
+ */
+ export const deleteForceById = async (id: string): Promise<OrderDoc | null> => {
+  await (Order as any).deleteOne( { _id: id });
+  return null;
+};

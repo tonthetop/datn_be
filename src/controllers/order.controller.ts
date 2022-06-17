@@ -130,11 +130,51 @@ export const deleteById = catchAsync(
     return res.status(httpStatus.NO_CONTENT).send();
   }
 );
+export const deleteForceById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    await orderService.deleteForceById(req.params.id);
+    return res.status(httpStatus.NO_CONTENT).send();
+  }
+);
 //
 const getTotalPriceOfADate = async (listOrder: any, option: any) => {
   return await listOrder.reduce(
     async (acc: any, item: any) =>
       (await acc) + (await getTotalPriceOfOrder(item.productList, option)),
+    0
+  );
+};
+const getTotalAmountOfOrder = async (carts: any, option: any) => {
+  if (option.type === '') {
+    return carts.reduce((acc: any, item: any) => {
+      return acc + item.amount;
+    }, 0);
+  } else if (option.type === 'brand') {
+    return await carts.reduce(async (acc: any, item: any) => {
+      //
+      const productInfo = await Product.find({ _id: item.productId._id });
+      if (productInfo.length > 0 && productInfo[0].brand === option.value) {
+        return (await acc) + item.amount;
+      } else return (await acc) + 0;
+    }, 0);
+  } else if (option.type === 'productType') {
+    return await carts.reduce(async (acc: any, item: any) => {
+      //
+      const productInfo = await Product.find({ _id: item.productId._id });
+      if (
+        productInfo.length > 0 &&
+        productInfo[0].productType === option.value
+      ) {
+        return (await acc) + item.amount;
+      } else return (await acc) + 0;
+    }, 0);
+  }
+};
+//
+const getTotalAmountOfADate = async (listOrder: any, option: any) => {
+  return await listOrder.reduce(
+    async (acc: any, item: any) =>
+      (await acc) + (await getTotalAmountOfOrder(item.productList, option)),
     0
   );
 };
@@ -161,7 +201,10 @@ const getTotalPriceOfOrder = async (carts: any, option: any) => {
     return await carts.reduce(async (acc: any, item: any) => {
       //
       const productInfo = await Product.find({ _id: item.productId._id });
-      if (productInfo.length > 0 && productInfo[0].productType === option.value) {
+      if (
+        productInfo.length > 0 &&
+        productInfo[0].productType === option.value
+      ) {
         const discountValue = item.discountValue ? item.discountValue : 0;
         const priceOrigin =
           item.price * (1 - discountValue / 100) * item.amount;
@@ -171,6 +214,7 @@ const getTotalPriceOfOrder = async (carts: any, option: any) => {
   }
 };
 //
+//
 export const countRevenue = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     //
@@ -179,7 +223,7 @@ export const countRevenue = catchAsync(
     const value = req.query.value || '';
     // const
     const largeDate = new Date(dateRange[1]);
-    largeDate.setDate(largeDate.getDate() + 1)
+    largeDate.setDate(largeDate.getDate() + 1);
     const result = await Order.aggregate([
       {
         $match: {
@@ -187,6 +231,7 @@ export const countRevenue = catchAsync(
             $gte: new Date(dateRange[0]),
             $lte: largeDate,
           },
+          'orderStatus.status': { $in: ['SUCCESS'] },
         },
       },
       {
@@ -216,6 +261,10 @@ export const countRevenue = catchAsync(
       return {
         date: item._id,
         totalBill: await getTotalPriceOfADate(item.orders_doc, { type, value }),
+        totalAmount: await getTotalAmountOfADate(item.orders_doc, {
+          type,
+          value,
+        }),
       };
     });
     const data = await Promise.all(dataPromise);
