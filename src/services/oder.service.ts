@@ -1,5 +1,7 @@
 import createError from 'http-errors';
-import { Order, OrderDoc } from '../models';
+import { AnyArray } from 'mongoose';
+import { productService } from '.';
+import { Order, OrderDoc, Product } from '../models';
 /**
  * Create item
  * @param {OrderDoc} body
@@ -24,6 +26,27 @@ export const getById = async (id: string): Promise<OrderDoc> => {
   return item;
 };
 
+//
+const updateAmountOfSize = async (body: any, item: any) => {
+  if (
+    (body as any).orderStatus &&
+    [...(body as any).orderStatus].pop()?.status === 'CANCEL' &&
+    item.orderStatus.pop()?.status !== 'CANCEL'
+  ) {
+    const promiseProductList = item.productList.map(async (product: any) => {
+      const productOrigin: any = await productService.getById(
+        product.productId._id
+      );
+      console.log({ productOrigin });
+      const productBySizeOrigin = productOrigin.productBySize.find(
+        (e: any) => e.size === product.size
+      );
+      productBySizeOrigin.amount += product.amount;
+      return productOrigin.save();
+    });
+    return Promise.all(promiseProductList);
+  }
+};
 /**
  * Update item by id
  * @param {string} id
@@ -32,6 +55,9 @@ export const getById = async (id: string): Promise<OrderDoc> => {
  */
 export async function updateById(id: string, body: Object): Promise<OrderDoc> {
   const item = await getById(id);
+  // cap nhat product
+  await updateAmountOfSize(body,item);
+
   Object.assign(item, body);
   await item.save();
   return item;
@@ -53,7 +79,7 @@ export const deleteById = async (id: string): Promise<OrderDoc | null> => {
  * @param {string} id
  * @returns {Promise<OrderDoc|null>}
  */
- export const deleteForceById = async (id: string): Promise<OrderDoc | null> => {
-  await (Order as any).deleteOne( { _id: id });
+export const deleteForceById = async (id: string): Promise<OrderDoc | null> => {
+  await (Order as any).deleteOne({ _id: id });
   return null;
 };

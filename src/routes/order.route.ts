@@ -11,6 +11,7 @@ router.route('/').get(orderRoutes.getItemsByQueries);
 router.route('/deleted').get(orderRoutes.getItemsDeleted);
 router.route('/restore/:id').get(orderRoutes.restoreById);
 router.route('/count-revenue').get(orderRoutes.countRevenue);
+router.route('/count-order-status').get(orderRoutes.countOrderStatus);
 router.route('/get-by-email-or-phone').post(validate(orderValidation.getOrderByEmailOrPhone),orderRoutes.getByEmailOrPhone);
 router.route('/').post(authenticationToken,authorization.checkMemberRole,validate(orderValidation.createOrder),orderRoutes.create,paymentRoutes.createPaymentUrl);
 router.route('/:id').get(validate(orderValidation.getOrder), orderRoutes.getById);

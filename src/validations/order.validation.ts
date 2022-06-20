@@ -57,7 +57,6 @@ const updateOrder = {
           _id:Joi.string(),
           createdAt:Joi.string(),
         })
-        .required()
         .min(1),
     })
     .min(1),

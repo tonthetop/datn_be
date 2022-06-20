@@ -281,3 +281,78 @@ export const countRevenue = catchAsync(
     //
   }
 );
+
+
+const getOrderStatusDistinct = (orderList: []) => {
+  let a = 0,
+    b = 0,
+    c = 0,
+    d = 0;
+  orderList.forEach((e: any) => {
+    switch (e.orderStatus.pop().status) {
+      case 'PENDING':
+        a++;
+        break;
+      case 'ACCEPTED':
+        b++;
+        break;
+      case 'SUCCESS':
+        c++;
+        break;
+      case 'CANCEL':
+        d++;
+        break;
+      default:
+        break;
+    }
+  });
+  return [a,b,c,d]
+};
+export const countOrderStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    //
+    const dateRange = (req.query.dateRange as any).split('--');
+    // const
+    const largeDate = new Date(dateRange[1]);
+    largeDate.setDate(largeDate.getDate() + 1);
+    const result = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(dateRange[0]),
+            $lte: largeDate,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          orderIds: {
+            $push: '$_id',
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'orderIds',
+          foreignField: '_id',
+          as: 'orders_doc',
+        },
+      },
+    ]);
+
+    const data = result.map((item) => {
+      return {
+        date: item._id,
+        status: getOrderStatusDistinct(item.orders_doc),
+      };
+    });
+    res.send(data);
+  }
+);
