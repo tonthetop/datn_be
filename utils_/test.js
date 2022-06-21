@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 // const rawFileLink = path.join(__dirname, 'products_Origin.json');
 const newFileLink = path.join(__dirname, 'newProduct2.json');
-
+// tesstttttt
 async function saveToFile(payload) {
     const data = JSON.stringify(payload);
     return fs.writeFile(newFileLink, data, () => {
