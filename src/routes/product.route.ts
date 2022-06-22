@@ -12,45 +12,45 @@ router.route('/getAll').get(productRoutes.getAllProducts);
 router.route('/deleted').get(productRoutes.getProductsDeleted);
 router.route('/restore/:id').get(productRoutes.restoreById);
 router.post(
-  '/cloudinary-upload',
-  uploadCloud.single('file'),
-  (req: any, res: any, next) => {
-    if (!req.file) {
-      next(new Error('No file uploaded!'));
-      return;
+    '/cloudinary-upload',
+    uploadCloud.array('files'),
+    (req: any, res: any, next) => {
+        if (!req.files) {
+            next(new Error('No file uploaded!'));
+            return;
+        }
+        console.log(req.files)
+        res.json(req.files.map((e: any) => e.path));
     }
-
-    res.json({ secure_url: req.file.path });
-  }
 );
 router.route('/count-product').get(productRoutes.countProduct);
 router
-  .route('/')
-  .post(validate(productValidation.createProduct), productRoutes.create);
+    .route('/')
+    .post(validate(productValidation.createProduct), productRoutes.create);
 router
-  .route('/delete-many')
-  .get(validate(productValidation.getProduct), productRoutes.deleteByOption);
+    .route('/delete-many')
+    .get(validate(productValidation.getProduct), productRoutes.deleteByOption);
 router
-  .route('/size')
-  .get(
-    validate(productValidation.getProduct),
-    productRoutes.getSizeFromProducts
-  );
+    .route('/size')
+    .get(
+        validate(productValidation.getProduct),
+        productRoutes.getSizeFromProducts
+    );
 router
-  .route('/:id')
-  .get(validate(productValidation.getProduct), productRoutes.getById);
+    .route('/:id')
+    .get(validate(productValidation.getProduct), productRoutes.getById);
 router
-  .route('/:id')
-  .delete(validate(productValidation.deleteProduct), productRoutes.deleteById);
+    .route('/:id')
+    .delete(validate(productValidation.deleteProduct), productRoutes.deleteById);
 router
-  .route('/delete-force/:id')
-  .delete(
-    validate(productValidation.deleteProduct),
-    productRoutes.deleteForceById
-  );
+    .route('/delete-force/:id')
+    .delete(
+        validate(productValidation.deleteProduct),
+        productRoutes.deleteForceById
+    );
 
 router
-  .route('/:id')
-  .put(validate(productValidation.updateProduct), productRoutes.updateById);
+    .route('/:id')
+    .put(validate(productValidation.updateProduct), productRoutes.updateById);
 
 export default router;
