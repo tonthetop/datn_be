@@ -28,15 +28,13 @@ const checkDiscountAvailable = (items: any[]) => {
   return items;
 };
 //
-export const countProduct = catchAsync(
-  async (req: Request, res: Response) => {
-    const queryParam=req.query.type
-    const result = await Product.aggregate([
-      { $group: { _id: `$${queryParam}`, count: { $sum: 1 } } },
-    ]);
-    res.status(httpStatus.OK).send(result);
-  }
-);
+export const countProduct = catchAsync(async (req: Request, res: Response) => {
+  const queryParam = req.query.type;
+  const result = await Product.aggregate([
+    { $group: { _id: `$${queryParam}`, count: { $sum: 1 } } },
+  ]);
+  res.status(httpStatus.OK).send(result);
+});
 //
 export const getAllProducts = catchAsync(
   async (req: Request, res: Response) => {
@@ -82,10 +80,10 @@ export const getItemsByQueries = catchAsync(
         sort = { price: -1 };
         break;
       case 'min_time':
-        sort = { createdAt: 1 };
+        sort = { createdAt: -1 };
         break;
       case 'max_time':
-        sort = { createdAt: -1 };
+        sort = { createdAt: 1 };
         break;
       default:
         sort = {};
@@ -103,6 +101,7 @@ export const getItemsByQueries = catchAsync(
       brand: brand !== '' ? brand : { $regex: new RegExp(brand, 'i') },
       productType: type !== '' ? type : { $regex: new RegExp(type, 'i') },
     })
+
       .populate('discountIds')
       .sort(sort)
       .skip(skip)
@@ -126,7 +125,7 @@ export const getItemsByQueries = catchAsync(
 );
 export const create = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const item = await productService.create(req.body, 'default');
+    const item = await productService.create(req.body);
     return res.status(httpStatus.CREATED).send(item);
   }
 );

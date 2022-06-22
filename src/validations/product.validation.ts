@@ -14,7 +14,7 @@ const createProduct = {
       .max(15)
       .valid('GIAY', 'DEP', 'PHUKIEN'),
     price: Joi.number().positive().required(),
-    //  imgList: Joi.array().items(Joi.string()),
+    imgList: Joi.array().items(Joi.string()),
     description: Joi.string().allow('', null).max(500),
     discountIds: Joi.array().items(Joi.string().custom(objectId)),
     productBySize: Joi.array().items(
