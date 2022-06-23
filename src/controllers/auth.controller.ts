@@ -48,7 +48,7 @@ const loginWithGoogle = catchAsync(async (req: any, res: any) => {
     email: result.data.email,
     name: result.data.name,
   };
-
+  console.log(user)
   // create user into DB or return item if exits
   const account = await accountService.getAcountOrCreateNew(user);
 

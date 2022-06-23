@@ -54,9 +54,11 @@ export async function getByEmailOrPhone(
  * @returns {Promise<AccountDoc>}
  */
 export async function getAcountOrCreateNew(body: any): Promise<AccountDoc> {
+  if (!body.email) throw new createError.BadRequest("You must grant access to your email"); 
   const item = await Account.findOne({
     email: body.email,
   });
+  console.log(item)
   if (!item) {
     body.role = 'USER';
     const item = await Account.create(body);
