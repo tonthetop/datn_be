@@ -18,4 +18,5 @@ router
 router
   .route('/:id')
   .put(authenticationToken, authorization.checkAdminRole, validate(discountValidation.updateDiscount), discountRoutes.updateById);
+  
 export default router;
