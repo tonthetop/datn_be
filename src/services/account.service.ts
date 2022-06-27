@@ -44,6 +44,8 @@ export async function getByEmailOrPhone(
     email: email ? email : { $regex: new RegExp(email, 'i') },
     phone: phone ? phone : { $regex: new RegExp(phone, 'i') },
   });
+  console.log(item)
+
   if (!item) throw new createError.NotFound();
   return item;
 }

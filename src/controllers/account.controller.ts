@@ -22,9 +22,9 @@ export const create = catchAsync(
             http://${req.headers.host}/account/verify-email?token=${account.emailToken}`, // plain text body
     };
     //
-    const result = await transporter(msg);
+    await transporter(msg);
     //
-    return res.status(httpStatus.CREATED).send(result);
+    return res.status(httpStatus.CREATED).send('Please check your Email to active your Account!');
   }
 );
 

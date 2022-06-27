@@ -3,6 +3,10 @@ import { accountService, authService } from '../services';
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import axios from 'axios';
+import uniqid from 'uniqid';
+import { transporter } from '../utils';
+import { Account } from '../models';
+import createHttpError from 'http-errors';
 
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -57,4 +61,29 @@ const loginWithGoogle = catchAsync(async (req: any, res: any) => {
   res.send({ account, token });
 });
 
-export { login, logout, logoutAll, loginWithGoogle };
+const resetPassword = catchAsync(
+  async (req: any, res: any) => {
+    // get email
+    const email = req.body.email
+    const account = await Account.findOne({ email: email })
+    if (!account) throw new createHttpError.BadRequest("Account not exits")
+    const newPassword = uniqid.process().toUpperCase();
+    // generate pass
+    account.password = newPassword
+    account.save()
+    //send mail
+    const msg = {
+      from: '"The Shoes App" <theShoesApp@example.com>', // sender address
+      to: `${account.email}`, // list of receivers
+      subject: 'Reset password for your account', // Subject line
+      text: `Hello, here is your new password:  ${newPassword}
+            Please change the password after you see this!`
+    };
+    //
+    await transporter(msg);
+    //
+    return res.send("Please check your Email to receive new password!");
+  }
+)
+
+export { login, logout, logoutAll, loginWithGoogle, resetPassword };

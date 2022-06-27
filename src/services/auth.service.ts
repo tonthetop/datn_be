@@ -1,6 +1,7 @@
 import { accountService } from '.';
-import { AccountDoc } from '../models';
+import { Account, AccountDoc } from '../models';
 import createError from 'http-errors';
+import createHttpError from 'http-errors';
 
 /**
  * Login with username and password
@@ -12,12 +13,13 @@ const loginAccountWithEmailAndPassword = async (
   email: string,
   password: string
 ): Promise<AccountDoc> => {
-  const user = await accountService.getByEmailOrPhone(email, '');
-  if (!user.isVerified)
+  const account = await Account.findOne({ email: email })
+  if (!account) throw new createHttpError.BadRequest("Account not exits")
+  if (account.isVerified===false)
     throw new createError.BadRequest('Your account not yet verified');
-  if (!user || !(await user.isPasswordMatch(password))) {
+  if (!account || !(await account.isPasswordMatch(password))) {
     throw new createError.Unauthorized();
   }
-  return user;
+  return account;
 };
-export { loginAccountWithEmailAndPassword};
+export { loginAccountWithEmailAndPassword };

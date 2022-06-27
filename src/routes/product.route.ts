@@ -2,16 +2,31 @@ import express from 'express';
 
 import * as productRoutes from '../controllers/product.controller';
 import { productValidation } from '../validations';
-import { validate } from '../middlewares';
+import { validate, authenticationToken, authorization } from '../middlewares';
 import { uploadCloud } from '../config/cloudinary.config';
 
 const router = express.Router();
-router.route('/').get(productRoutes.getItemsByQueries);
 
-router.route('/getAll').get(productRoutes.getAllProducts);
-router.route('/deleted').get(productRoutes.getProductsDeleted);
-router.route('/restore/:id').get(productRoutes.restoreById);
+//get products by queries
+router
+    .route('/')
+    .get(productRoutes.getItemsByQueries);
+
+//get all exits products
+router
+    .route('/getAll')
+    .get(productRoutes.getAllProducts);
+// get all deleted products
+router
+    .route('/deleted')
+    .get(productRoutes.getProductsDeleted);
+//restore By Id
+router
+    .route('/restore/:id')
+    .get(authenticationToken, authorization.checkAdminRole, productRoutes.restoreById);
+//upload image
 router.post(
+
     '/cloudinary-upload',
     uploadCloud.array('files'),
     (req: any, res: any, next) => {
@@ -23,34 +38,33 @@ router.post(
         res.json(req.files.map((e: any) => e.path));
     }
 );
-router.route('/count-product').get(productRoutes.countProduct);
+// for chart
+router
+    .route('/count-product')
+    .get(authenticationToken, authorization.checkAdminRole, productRoutes.countProduct);
+//create
 router
     .route('/')
-    .post(validate(productValidation.createProduct), productRoutes.create);
-router
-    .route('/delete-many')
-    .get(validate(productValidation.getProduct), productRoutes.deleteByOption);
+    .post(authenticationToken, authorization.checkAdminRole, validate(productValidation.createProduct), productRoutes.create);
+//getSizesFromProducts
 router
     .route('/size')
-    .get(
-        validate(productValidation.getProduct),
-        productRoutes.getSizeFromProducts
-    );
+    .get(productRoutes.getSizeFromProducts);
+//get By Id
 router
     .route('/:id')
     .get(validate(productValidation.getProduct), productRoutes.getById);
+//soft delete by Id
 router
     .route('/:id')
-    .delete(validate(productValidation.deleteProduct), productRoutes.deleteById);
+    .delete(authenticationToken, authorization.checkAdminRole, validate(productValidation.deleteProduct), productRoutes.deleteById);
+//force delete by Id
 router
     .route('/delete-force/:id')
-    .delete(
-        validate(productValidation.deleteProduct),
-        productRoutes.deleteForceById
-    );
-
+    .delete(authenticationToken, authorization.checkAdminRole, validate(productValidation.deleteProduct), productRoutes.deleteForceById);
+//update by Id
 router
     .route('/:id')
-    .put(validate(productValidation.updateProduct), productRoutes.updateById);
+    .put(authenticationToken, authorization.checkAdminRole, validate(productValidation.updateProduct), productRoutes.updateById);
 
 export default router;

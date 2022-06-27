@@ -52,7 +52,7 @@ const updateOrder = {
         .items({
           status: Joi.string()
             .required()
-            .valid('PENDING', 'ACCEPTED', 'SUCCESS', 'CANCEL'), // ACCEPTED - SUCCESS - CANCEL,
+            .valid('PENDING', 'ACCEPTED', 'SUCCESS', 'CANCEL'), // PENDING - ACCEPTED - SUCCESS - CANCEL,
           description: Joi.string().allow('', null).max(500),
           _id:Joi.string(),
           createdAt:Joi.string(),

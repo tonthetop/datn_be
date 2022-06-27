@@ -173,13 +173,3 @@ export const getSizeFromProducts = catchAsync(
     return res.status(httpStatus.OK).send(results);
   }
 );
-export const deleteByOption = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const queries = {
-      'productBySize.size': '',
-      price: 0,
-    };
-    await Product.deleteMany(queries);
-    return res.status(httpStatus.NO_CONTENT).send();
-  }
-);

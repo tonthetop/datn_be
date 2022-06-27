@@ -140,7 +140,7 @@ accountSchema.methods.generateAuthToken = async function (): Promise<string> {
 /**
  * Check if email is taken
  * @param {string} email - The account's email
- * @param {string} [excludeaccountId] - The id of the account to be excluded
+ * @param {string} [phone] - The phone
  * @returns {Promise<boolean>}
  */
 accountSchema.statics.isEmailAndPhoneTaken = async function (
