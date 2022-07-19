@@ -124,7 +124,7 @@ export const returnPaymentUrl = catchAsync(async function (
       createdAt: new Date(),
     });
     order.save();
-    return res.redirect(`http://localhost:3000/thankyou/${order._id}`);
+    return res.redirect(`https://datn-fe-flame.vercel.app/thankyou/${order._id}`);
   } else {
     throw new createError.PaymentRequired();
   }
