@@ -133,13 +133,13 @@ export const create = catchAsync(
 export const getById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const item = await productService.getById(req.params.id);
-    // get populate discounts
-    const lastestDis = item.discountIds.pop();
-    if (lastestDis) {
-      if (lastestDis.timeBegin < new Date() && lastestDis.timeEnd > new Date())
-        item.discountIds = [lastestDis];
-      else item.discountIds = [];
-    }
+    // // get populate discounts
+    // const lastestDis = item.discountIds.pop();
+    // if (lastestDis) {
+    //   if (lastestDis.timeBegin < new Date() && lastestDis.timeEnd > new Date())
+    //     item.discountIds = [lastestDis];
+    //   else item.discountIds = [];
+    // }
     return res.status(httpStatus.OK).send(item);
   }
 );

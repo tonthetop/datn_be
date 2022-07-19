@@ -18,6 +18,13 @@ const create = async (body: ProductDoc): Promise<ProductDoc> => {
 const getById = async (id: string) => {
   const item = await Product.findById(id).populate('discountIds');
   if (!item) throw new createError.NotFound();
+  // get populate discounts
+  const lastestDis = item.discountIds.pop();
+  if (lastestDis) {
+    if (lastestDis.timeBegin < new Date() && lastestDis.timeEnd > new Date())
+      item.discountIds = [lastestDis];
+    else item.discountIds = [];
+  }
   return item;
 };
 
@@ -53,7 +60,7 @@ const deleteById = async (productId: string): Promise<ProductDoc | null> => {
  * @returns {Promise<ProductDoc|null>}
  */
 const deleteForceById = async (id: string): Promise<ProductDoc | null> => {
-  await (Product as any).deleteOne({ _id:id });
+  await (Product as any).deleteOne({ _id: id });
   return null;
 };
 
